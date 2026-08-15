@@ -1508,6 +1508,16 @@
       if (restoreFocus && lastFocus instanceof HTMLElement && document.contains(lastFocus)) lastFocus.focus();
     }
 
+    const typingSound = new Audio('./materials/sound/effects/打字声.wav');
+    typingSound.preload = 'auto';
+    typingSound.loop = true;
+    typingSound.volume = 0.5;
+
+    function stopTypingSound() {
+      typingSound.pause();
+      typingSound.currentTime = 0;
+    }
+    
     function renderModal() {
       if (!activeModal) { dialogBackdrop.hidden = true; return; }
       dialogBackdrop.hidden = false;
@@ -1905,6 +1915,7 @@
 
     function render(moveFocus = false) {
       clearTimeout(bootTimer);
+      stopTypingSound();
       renderToken += 1;
       const renderer = RENDERERS[state.currentScene] || renderP03;
       document.documentElement.lang = state.language === 'zh' ? 'zh-CN' : 'en';
@@ -1918,26 +1929,46 @@
     function startBootSequence(token) {
       const target = document.getElementById('boot-copy');
       const action = document.getElementById('boot-action');
+
       if (!target || !action) return;
+
       const text = copy().p00.text;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       if (state.openingSeen || reduced) {
+        stopTypingSound();
         target.innerHTML = `${escapeHTML(text)}<span class="cursor"></span>`;
         action.hidden = false;
         return;
       }
+
       let index = 0;
+
+      // Start typing sound
+      typingSound.currentTime = 0;
+      typingSound.play().catch(() => {});
+
       const step = () => {
-        if (token !== renderToken || !document.contains(target)) return;
+        if (token !== renderToken || !document.contains(target)) {
+          stopTypingSound();
+          return;
+        }
+
         index += 1;
-        target.innerHTML = `${escapeHTML(text.slice(0, index))}<span class="cursor"></span>`;
+
+        target.innerHTML =
+          `${escapeHTML(text.slice(0, index))}<span class="cursor"></span>`;
+
         if (index < text.length) {
           const delay = text[index - 1] === '\n' ? 42 : 11;
           bootTimer = setTimeout(step, delay);
         } else {
+          // Text finished -> stop typing sound
+          stopTypingSound();
           action.hidden = false;
         }
       };
+
       step();
     }
 
