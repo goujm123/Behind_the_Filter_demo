@@ -1935,6 +1935,18 @@
       const text = copy().p00.text;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+      if (!navigator.userActivation?.hasBeenActive) {
+        target.innerHTML = `CLICK ANYWHERE TO INITIALIZE<span class="cursor"></span>`;
+        action.hidden = true;
+
+        document.addEventListener('pointerdown', () => {
+          target.innerHTML = '';
+          startBootSequence(token);
+        }, { once: true });
+
+        return;
+      }
+
       if (state.openingSeen || reduced) {
         stopTypingSound();
         target.innerHTML = `${escapeHTML(text)}<span class="cursor"></span>`;
