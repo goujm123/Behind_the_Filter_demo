@@ -33,7 +33,7 @@
 
     * { box-sizing: border-box; }
 
-    html { min-width: 320px; background: var(--black); }
+    html { min-width: 320px; overflow-x: hidden; background: var(--black); }
 
     body {
       margin: 0;
@@ -412,7 +412,6 @@
 
     .player-progress { height: 5px; flex: 1; border: 1px solid #4f565e; background: #05070a; }
     .player-progress span { display: block; width: 0; height: 100%; background: var(--blue); transition: width .6s linear; }
-    .retro-player.is-playing .player-progress span { width: 42%; }
 
     .viral-still {
       position: relative;
@@ -435,28 +434,6 @@
       pointer-events: none;
     }
 
-    .retro-player.is-playing .viral-still { animation: tape-jitter 2.4s steps(2, end) infinite; }
-    @keyframes tape-jitter { 50% { background-position: 50.2% 49.9%; } }
-
-    .play-button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      z-index: 2;
-      width: 84px;
-      height: 70px;
-      display: grid;
-      place-items: center;
-      border: 1px solid #d5d8dd;
-      border-radius: 0;
-      color: white;
-      background: #02060a88;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-    }
-
-    .play-button:hover { color: var(--blue-pale); border-color: var(--blue-pale); background: #071224cc; }
-    .play-button .icon { width: 31px; height: 31px; }
 
     /* P02 */
     .mail-layout {
@@ -574,6 +551,197 @@
     .next-step strong { display: block; margin-bottom: 8px; color: var(--blue-pale); }
     .next-step p { margin: 0 0 14px; }
 
+    .media-static-badge {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border: 1px solid #9ca7b7;
+      color: #e9eef7;
+      background: #02060ad9;
+      font-size: 11px;
+    }
+
+    /* P04 */
+    .search-lab {
+      color-scheme: light;
+      min-height: 570px;
+      padding: 24px;
+      border: 2px solid #b9bec5;
+      color: #1b2430;
+      background: #f6f6f2;
+      box-shadow: var(--shadow);
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+    }
+
+    .search-lab-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #c6c9ce;
+    }
+
+    .search-lab-head div { display: flex; align-items: baseline; gap: 12px; }
+    .search-lab-head strong { color: #123f89; font-family: Georgia, "Times New Roman", serif; font-size: 30px; }
+    .search-lab-head span { color: #68717d; font-family: var(--mono); font-size: 12px; }
+    .search-readonly { padding: 4px 7px; border: 1px solid #b0b5bc; background: #e7e8e4; }
+
+    .search-query-bar {
+      width: min(760px, 100%);
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0 14px;
+      padding: 4px 12px;
+      border: 2px inset #d3d5d8;
+      background: white;
+    }
+
+    .search-query-bar input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: #171b21;
+      background: white;
+      font-family: var(--mono);
+    }
+
+    .query-presets { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 18px; }
+    .query-presets-label { color: #545d68; font-family: var(--mono); font-size: 12px; }
+    .query-button {
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid #8a929d;
+      border-radius: 0;
+      color: #163e82;
+      background: #ecece8;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .query-button:hover, .query-button.active { border-color: #224c91; color: white; background: #224c91; }
+    .query-button.visited:not(.active) { color: #6b2d91; }
+    .search-stats { margin: 8px 0; color: #68717c; font-family: var(--mono); font-size: 12px; }
+    .search-result-card { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 12px; padding: 18px 0; border-block: 1px solid #c8cbd0; }
+    .search-result-card.key-result { padding-inline: 12px; border: 1px solid #4773b7; background: #eef5ff; }
+    .result-index { color: #555e69; font-family: var(--mono); }
+    .result-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; color: #68717c; font-family: var(--mono); font-size: 11px; }
+    .result-meta span { padding: 2px 5px; border: 1px solid #a6acb4; background: #eceeea; }
+    .visited-label { color: #6b2d91; }
+    .search-result-link, .result-open {
+      padding: 0;
+      border: 0;
+      color: #164fbd;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: underline;
+    }
+
+    .search-result-link { font-family: Georgia, "Times New Roman", serif; font-size: 22px; }
+    .search-result-link.visited { color: #6b2d91; }
+    .result-url { margin-top: 4px; color: #247238; font-size: 13px; overflow-wrap: anywhere; }
+    .result-copy p { max-width: 820px; margin: 8px 0; line-height: 1.55; }
+    .result-open { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 12px; }
+    .search-tip { margin-top: 24px; padding: 14px; border: 1px solid #b5bac1; background: #e9ecef; }
+    .search-tip strong { color: #193d77; font-family: var(--mono); }
+    .search-tip p { margin: 7px 0 0; line-height: 1.5; }
+
+    /* P05 */
+    .archive-wrap { background: #11151a; }
+    .archive-site { color-scheme: light; border: 2px solid #9ea5ae; color: #20252b; background: #f5f5f1; box-shadow: var(--shadow); font-family: Arial, "Microsoft YaHei", sans-serif; }
+    .archive-brand { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 4px solid #15366d; }
+    .archive-seal { width: 58px; height: 58px; display: grid; place-items: center; border: 3px double #d1b45e; color: white; background: #133468; font: 700 22px Georgia, serif; }
+    .archive-brand h1 { margin: 0; color: #102d5d; font: 700 30px Georgia, "Times New Roman", serif; }
+    .archive-brand p { margin: 4px 0 0; color: #646c75; }
+    .archive-nav { display: flex; flex-wrap: wrap; gap: 0; padding: 0 20px; border-bottom: 1px solid #a8adb4; background: #e6e7e4; }
+    .archive-nav span { padding: 10px 15px; color: #153d78; border-right: 1px solid #c4c7cb; font-weight: 700; }
+    .archive-nav span.active { color: white; background: #15366d; }
+    .archive-breadcrumb { padding: 12px 24px; color: #5d6670; font-size: 12px; }
+    .archive-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 26px; padding: 6px 24px 28px; }
+    .archive-sidebar { align-self: start; display: grid; border: 1px solid #b3b7bd; background: #e8e9e6; }
+    .archive-sidebar strong, .archive-sidebar span { padding: 10px 13px; border-bottom: 1px solid #c7cacf; }
+    .archive-sidebar strong { color: white; background: #17396e; }
+    .archive-sidebar span.active { color: #17396e; background: white; font-weight: 700; }
+    .archive-content h2 { margin: 0; color: #15366d; font: 700 36px Georgia, "Times New Roman", serif; }
+    .archive-event-meta { color: #6b5c3e; font-family: Georgia, serif; font-style: italic; }
+    .archive-content > p { line-height: 1.6; }
+    .speaker-list { margin: 20px 0; padding-block: 12px; border-block: 1px solid #b7bbc0; }
+    .speaker-list h3 { margin: 0 0 8px; color: #163a72; font: 700 16px Georgia, serif; }
+    .speaker-list ul { margin: 0; padding-left: 20px; line-height: 1.7; }
+    .archive-record { border: 1px solid #9299a2; background: white; }
+    .archive-record-head { display: flex; justify-content: space-between; gap: 14px; padding: 10px 12px; color: white; background: #17396e; font-family: var(--mono); font-size: 12px; }
+    .archive-record h3 { margin: 0; padding: 15px 16px 8px; color: #15366d; font: 700 19px Georgia, serif; }
+    .archive-record dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 5px 12px; margin: 0; padding: 6px 16px 12px; }
+    .archive-record dt { color: #626b75; }
+    .archive-record dd { margin: 0; overflow-wrap: anywhere; }
+    .archive-link-button { margin: 0 16px 16px; padding: 0; border: 0; color: #154eaa; background: transparent; cursor: pointer; text-decoration: underline; }
+    .archive-inspection { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); gap: 16px; margin-top: 18px; }
+    .archive-frame-record, .source-match { border: 1px solid #8f969f; padding: 15px; background: white; }
+    .archive-frame-label { margin: -15px -15px 12px; padding: 9px 12px; color: white; background: #272f39; font-family: var(--mono); font-size: 12px; }
+    .archive-frame-visual { min-height: 180px; display: grid; place-content: center; gap: 8px; border: 1px solid #747c86; color: #e0e7f3; background: #111820; text-align: center; font-family: var(--mono); }
+    .archive-frame-visual .icon { width: 34px; height: 34px; margin: auto; }
+    .archive-frame-visual span { color: #8998aa; font-size: 11px; }
+    .archive-frame-record p, .source-match p { line-height: 1.5; }
+    .archive-frame-record h3, .source-match h3 { color: #17396e; font-size: 14px; }
+    .archive-frame-record blockquote { margin: 8px 0 0; padding: 10px 13px; border-left: 4px solid #b89b48; background: #f0f0ec; font-family: Georgia, serif; }
+    .source-match { color: #dce5f5; background: #09111d; font-family: var(--mono); }
+    .source-match h3 { margin-top: 0; color: var(--blue-pale); }
+    .match-status { display: inline-flex; align-items: center; gap: 6px; color: var(--green); }
+    .source-match .primary-button { width: 100%; }
+    .archive-next { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #b6bac0; }
+    .archive-lock-note { color: #77551f; }
+
+    /* P06 */
+    .trace-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; }
+    .trace-layout > *, .trace-node button > *, .uploader-summary > * { min-width: 0; }
+    .trace-timeline, .uploader-panel { min-width: 0; align-self: start; border: 1px solid #68717e; background: #080d13; }
+    .trace-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid #4b5665; background: #0d1a31; }
+    .trace-panel-head h2 { margin: 0; color: var(--blue-pale); font-size: 16px; }
+    .trace-panel-head p { margin: 5px 0 0; color: #9ba5b4; font-size: 12px; }
+    .trace-panel-head > span { color: var(--green); white-space: nowrap; }
+    .trace-nodes { padding: 8px 14px; }
+    .trace-node { position: relative; border-bottom: 1px dashed #46505d; }
+    .trace-node:last-child { border-bottom: 0; }
+    .trace-node button { width: 100%; display: grid; grid-template-columns: 38px 150px 150px minmax(0, 1fr) 24px; align-items: center; gap: 10px; padding: 13px 4px; border: 0; color: #d4dae3; background: transparent; text-align: left; cursor: pointer; }
+    .trace-node button:hover { color: white; background: #0d1622; }
+    .trace-node.expanded button { color: white; background: #102243; }
+    .trace-node-index { color: #718097; }
+    .trace-node-time { color: var(--blue); font-size: 12px; }
+    .trace-node strong { color: var(--blue-pale); font-size: 12px; }
+    .trace-node-summary { line-height: 1.4; overflow-wrap: anywhere; }
+    .trace-node .icon { transition: transform .15s ease; }
+    .trace-node.expanded .icon { transform: rotate(90deg); }
+    .trace-node-detail { margin: 0 4px 13px 198px; padding: 11px 13px; border-left: 3px solid var(--yellow); color: #bac3d0; background: #14140d; line-height: 1.5; }
+    .trace-save { margin: 8px 14px 16px; }
+    .uploader-summary { display: grid; grid-template-columns: 48px 1fr; gap: 12px; padding: 16px; border-bottom: 1px solid #3f4854; }
+    .uploader-summary p { margin: 5px 0 0; color: #aab3c0; line-height: 1.4; }
+    .uploader-summary strong { overflow-wrap: anywhere; }
+    .analyze-button { width: calc(100% - 32px); margin: 16px; }
+    .uploader-analysis { padding: 16px; }
+    .uploader-analysis dl { margin: 0; }
+    .uploader-analysis dl div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px dotted #46505d; }
+    .uploader-analysis dt { color: #7f91aa; }
+    .uploader-analysis dd { margin: 0; overflow-wrap: anywhere; }
+    .uploader-analysis h3 { color: var(--red); font-size: 14px; }
+    .uploader-analysis ul { padding-left: 20px; color: #c4cad2; line-height: 1.65; }
+    .account-conclusion { padding: 12px; border: 1px solid #8a6b28; color: #e2cc93; background: #171309; line-height: 1.5; }
+    .uploader-analysis .secondary-button { width: 100%; }
+    .trace-next { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 16px; border: 1px solid #52617a; background: #09162a; }
+    .trace-evidence-status { display: flex; gap: 10px; }
+    .trace-evidence-status span { display: inline-flex; align-items: center; gap: 5px; min-width: 52px; padding: 7px 9px; border: 1px solid #7d6230; color: var(--yellow); }
+    .trace-evidence-status span.verified { border-color: #34734c; color: var(--green); }
+
     /* Dialog and live status */
     .dialog-backdrop {
       position: fixed;
@@ -623,6 +791,8 @@
       .home-copy { max-width: 760px; }
       .home-title { font-size: 78px; }
       .feed-layout { grid-template-columns: 1fr; }
+      .trace-layout { grid-template-columns: 1fr; }
+      .archive-inspection { grid-template-columns: 1fr; }
       .side-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .next-step { grid-column: 1 / -1; }
       .system-footer { grid-template-columns: repeat(2, 1fr); }
@@ -642,6 +812,12 @@
       .mail-layout { grid-template-columns: 1fr; }
       .mail-sidebar { display: none; }
       .mail-headers { grid-template-columns: 82px minmax(0, 1fr); }
+      .archive-layout { grid-template-columns: 1fr; }
+      .archive-sidebar { grid-template-columns: repeat(5, 1fr); }
+      .archive-sidebar strong, .archive-sidebar span { border-right: 1px solid #c7cacf; border-bottom: 0; }
+      .trace-node button { grid-template-columns: 32px 128px minmax(0, 1fr) 24px; }
+      .trace-node strong { display: none; }
+      .trace-node-detail { margin-left: 170px; }
       .home-main { min-height: auto; padding: 30px 18px; }
       .home-title { font-size: 68px; }
       .footer-cell { min-height: 94px; padding: 15px 18px; }
@@ -652,15 +828,14 @@
     @media (max-width: 560px) {
       .topbar { display: grid; grid-template-columns: auto 1fr; align-items: start; }
       .top-actions {
-        width: 226px;
+        width: 174px;
         display: grid;
-        grid-template-columns: 42px minmax(110px, 1fr) 42px;
+        grid-template-columns: minmax(110px, 1fr) 42px;
         justify-self: end;
       }
       .top-actions .evidence-counter { grid-column: 1 / -1; grid-row: 2; min-height: 30px; justify-content: center; padding: 4px 7px; font-size: 12px; }
-      .top-actions [data-action="TOGGLE_AUDIO"] { grid-column: 1; grid-row: 1; }
-      .top-actions [data-action="TOGGLE_LANGUAGE"] { grid-column: 2; grid-row: 1; width: auto; }
-      .top-actions [data-action="OPEN_RESET"] { grid-column: 3; grid-row: 1; }
+      .top-actions [data-action="TOGGLE_LANGUAGE"] { grid-column: 1; grid-row: 1; width: auto; }
+      .top-actions [data-action="OPEN_RESET"] { grid-column: 2; grid-row: 1; }
       .home-title { font-size: 52px; }
       .home-stat { font-size: 16px; }
       .home-stat strong { display: block; font-size: 26px; }
@@ -668,7 +843,6 @@
       .retro-player { padding-top: 37px; padding-bottom: 45px; }
       .player-titlebar { font-size: 11px; }
       .player-titlebar span:first-child { max-width: 72%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .play-button { width: 64px; height: 58px; }
       .system-footer { grid-template-columns: 1fr; }
       .footer-cell { border-right: 0; border-bottom: 1px dotted #6c7480; }
       .footer-cell:last-child { border-bottom: 0; }
@@ -685,6 +859,26 @@
       .boot-status { flex-direction: column; }
       .boot-action .primary-button { width: 100%; }
       .dialog-actions { display: grid; grid-template-columns: 1fr; }
+      .search-lab { padding: 16px; }
+      .search-lab-head { align-items: flex-start; }
+      .search-lab-head div { align-items: flex-start; flex-direction: column; gap: 3px; }
+      .search-lab-head strong { font-size: 25px; }
+      .search-result-card { grid-template-columns: 1fr; }
+      .result-index { display: none; }
+      .archive-brand { align-items: flex-start; padding: 16px; }
+      .archive-brand h1 { font-size: 23px; overflow-wrap: anywhere; }
+      .archive-nav { padding: 0; }
+      .archive-nav span { flex: 1 1 33%; text-align: center; }
+      .archive-layout { padding-inline: 14px; }
+      .archive-sidebar { grid-template-columns: repeat(2, 1fr); }
+      .archive-sidebar strong { grid-column: 1 / -1; }
+      .archive-record-head, .archive-next, .trace-next { align-items: stretch; flex-direction: column; }
+      .archive-record dl { grid-template-columns: 82px minmax(0, 1fr); }
+      .trace-node button { grid-template-columns: 28px minmax(0, 1fr) 24px; }
+      .trace-node-time { display: none; }
+      .trace-node-detail { margin-left: 4px; }
+      .trace-save { width: calc(100% - 28px); }
+      .trace-evidence-status { justify-content: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -700,11 +894,7 @@
 <body>
   <svg class="sr-only" aria-hidden="true" focusable="false">
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3v8Z"/><path d="m9 12 2 2 4-4"/></symbol>
-    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></symbol>
-    <symbol id="i-volume-off" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M11 5 6 9H2v6h4l5 4v-8"/><path d="M15.5 8.5a5 5 0 0 1 1.2 2.1"/><path d="M19 5a10 10 0 0 1 1.3 11.1"/></symbol>
     <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
-    <symbol id="i-play" viewBox="0 0 24 24"><path d="m7 4 13 8L7 20V4Z"/></symbol>
-    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
     <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 13h4l2 3h4l2-3h4"/></symbol>
@@ -743,7 +933,8 @@
   <script>
     'use strict';
 
-    const STORAGE_KEY = 'behind-the-filter.case001.v1';
+    const STORAGE_KEY_V1 = 'behind-the-filter.case001.v1';
+    const STORAGE_KEY = 'behind-the-filter.case001.v2';
     const SCENES = Object.freeze(['P00', 'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09']);
     const EVIDENCE = Object.freeze({
       A: { scene: 'P03', status: 'UNVERIFIED' },
@@ -755,22 +946,25 @@
     });
 
     const DEFAULT_STATE = Object.freeze({
-      version: 1,
+      version: 2,
       language: 'en',
       currentScene: 'P00',
       maxUnlockedScene: 'P00',
       evidence: [],
       replyChoice: null,
       replySent: false,
-      audioEnabled: false,
-      openingSeen: false
+      openingSeen: false,
+      selectedSearchQuery: 'maya',
+      visitedQueries: [],
+      archiveRecordInspected: false,
+      uploaderAnalysisOpened: false
     });
 
     const COPY = {
       en: {
         global: {
           product: 'TRACE', lab: 'Youth Digital Verification Lab', caseActive: 'CASE 001 ACTIVE',
-          language: 'Switch to Chinese', audioOn: 'Mute audio', audioOff: 'Enable audio', reset: 'Reset investigation',
+          language: 'Switch to Chinese', reset: 'Reset investigation',
           evidence: 'TRACE NOTES', objective: 'OBJECTIVE:', objectiveText: 'Uncover the truth behind the unseen.',
           approach: 'APPROACH:', approachText: 'Verify. Cross-check. Connect the dots.', analyst: 'USER: ANALYST_07',
           system: 'TRACE SYSTEM v1.0', fictional: 'Fictional narrative for MIL learning.',
@@ -785,8 +979,7 @@
           caseNumber: 'CASE 001', kicker: '2.8 MILLION VIEWS. ZERO VERIFIED SOURCES.',
           title: 'SHE NEVER\nPOSTED IT.', statNumber: '2,803,119', statLabel: 'people saw the video.',
           desc: 'None of them asked where it came from.', start: 'START INVESTIGATION',
-          file: 'VID_2026_08_13_20_15_00.MP4', play: 'Play reconstructed clip', pause: 'Pause reconstructed clip',
-          reconstruction: 'AI EVIDENCE RECONSTRUCTION'
+          file: 'VID_2026_08_13_20_15_00.MP4', reconstruction: 'STATIC EVIDENCE PREVIEW'
         },
         p02: {
           page: 'PAGE 01', title: 'URGENT MAIL', subtitle: 'Mail / Urgent Message', mailbox: 'MAILBOX',
@@ -829,6 +1022,54 @@
           nextLabel: 'NEXT INVESTIGATION STEP:', nextBody: 'Search for the original source instead of following the repost loop.',
           search: 'SEARCH ORIGINAL SOURCE', back: 'BACK TO MAIL', evidenceSaved: 'Viral repost saved as Evidence A - UNVERIFIED.'
         },
+        p04: {
+          page: 'PAGE 03', title: 'SEARCH', subtitle: 'Look for the source, not the noise.', back: 'BACK TO VIRAL POST',
+          engine: 'SearchLab', engineVersion: 'v3.4 ARCHIVE INDEX', fixedQueries: 'FIXED QUERY SET', readonly: 'READ ONLY',
+          results: 'About 1,230,000 indexed records (0.31 seconds)', visited: 'VISITED', open: 'OPEN RESULT',
+          tipTitle: 'QUERY NOTES', tip: 'Not all search results are equally valuable. Look for original sources, institutional archives, and first-hand records rather than reposts or commentary.',
+          queries: [
+            { id: 'maya', label: 'Maya Lin', badge: 'PERSONAL SITE', title: 'Maya Lin - Personal Blog', url: 'www.maya-lin-creates.com', snippet: 'Beauty, lifestyle, and study vlogs. Northbridge University student. Last post: August 12, 2026.', detailTitle: 'PERSONAL BLOG NOTES', detailBody: 'This confirms that Maya Lin is a real Northbridge student and creator. The page contains no reference to the viral clip. Identity context does not verify the video.' },
+            { id: 'uploader', label: 'truthseeker_99', badge: 'PROFILE CACHE', title: 'truthseeker_99 - Public Feed Profile', url: 'feed.public/user/truthseeker_99', snippet: 'Account created August 13, 2026. 12 followers. 1 post. Bio: "Exposing the truth they hide."', detailTitle: 'ACCOUNT CACHE NOTES', detailBody: 'The account was created on the day of the upload and its only post is the Maya Lin clip. This is a warning sign, but the account still requires a full source-trace analysis.' },
+            { id: 'festival', label: 'Maya Lin + media festival', badge: 'PRIMARY SOURCE LEAD', title: 'Northbridge University - Media Festival 2024', url: 'archive.northbridge.edu/events/2024/media-festival', snippet: 'Annual student media showcase. November 11, 2024. Guest speakers, archived recordings, and project gallery.', detailTitle: 'ARCHIVE LEAD', detailBody: 'This institutional archive contains a public appearance by Maya Lin and an archived recording record.', key: true },
+            { id: 'headline', label: 'You Won\'t Believe What Maya Lin Did', badge: 'REPOST MIRROR', title: '[REPOST] You Won\'t Believe What Maya Lin Did - Mirror 1', url: 'mirror-site-47.com/viral/maya-lin', snippet: 'Original post removed. Saved for archival purposes. 890,231 views. Source: truthseeker_99 on Public Feed.', detailTitle: 'CITATION LOOP', detailBody: 'This mirror cites the Public Feed post, while other reposts cite this mirror. The pages point to one another without identifying a primary source.' },
+            { id: 'police', label: 'Maya Lin + police report', badge: 'SECONDARY REPORT', title: 'Maya Lin Files Police Report Over Online Harassment', url: 'news.daily.com/local/2026/08/13', snippet: 'Northbridge student Maya Lin filed a harassment report regarding online abuse. Details withheld under privacy policy.', detailTitle: 'SECONDARY REPORT NOTES', detailBody: 'The report supports Maya\'s statement that she is being harassed, but it contains no original footage and cannot establish where the viral video came from.' }
+          ]
+        },
+        p05: {
+          page: 'PAGE 04', title: 'NORTHBRIDGE ARCHIVE', subtitle: 'Institutional record / public event archive', back: 'BACK TO SEARCH',
+          university: 'NORTHBRIDGE UNIVERSITY', office: 'Office of Communications & Media Archives',
+          nav: ['Home', 'News', 'Events', 'Archives', 'Contact', 'Search'], breadcrumb: 'Archives > Events > 2024 > Media Festival',
+          eventTitle: '2024 MEDIA FESTIVAL', eventMeta: 'November 11, 2024 | Student Center Auditorium',
+          eventBody: 'The annual Media Festival showcases student projects in digital media, journalism, and creative technology. This event included guest presentations, public panel discussions, and an archived recording index.',
+          speakersTitle: 'GUEST SPEAKERS', speakers: ['Dr. Elena Voss - Department of Media Studies', 'Maya Lin - Content Creator & Northbridge Student', 'James Park - Independent Filmmaker'],
+          recordsTitle: 'ARCHIVED RECORDING INDEX', recordName: 'Panel Discussion: "Creativity and Identity Online"',
+          recorded: 'Recorded', recordedValue: 'November 11, 2024, 14:30-15:45', file: 'File', fileValue: 'mediafest_2024_panel_03.mp4', size: 'Size', sizeValue: '847 MB', archiveId: 'Archive ID', archiveIdValue: 'NB_U_MF24_PANEL_03',
+          inspect: 'INSPECT ARCHIVE RECORD', inspected: 'ARCHIVE RECORD OPEN', frameTitle: 'ARCHIVED FRAME RECORD',
+          frameBody: 'Timestamp 00:23:17 records Maya Lin speaking at a public panel. The side-profile geometry and facial landmarks correspond to the face used in the viral clip.',
+          transcriptTitle: 'TRANSCRIPT EXCERPT', transcript: '"...and that is why I think authenticity matters more than perfection online."',
+          matchTitle: 'TRACE SOURCE MATCH v0.8', matchStatus: 'MATCH FOUND', matchSource: 'Source: mediafest_2024_panel_03.mp4', matchTime: 'Timestamp: 00:23:17', matchConfidence: 'Confidence: High',
+          matchBody: 'The face in the viral post corresponds to this earlier public archive record. This establishes provenance for the face, not the identity of whoever created the manipulated clip.',
+          save: 'SAVE TO EVIDENCE BOARD', evidenceSaved: 'Original livestream record saved as Evidence B - VERIFIED.', proceed: 'PROCEED TO SOURCE TRACE', locked: 'Inspect and save the archive record before proceeding.'
+        },
+        p06: {
+          page: 'PAGE 05', title: 'SOURCE TRACE', subtitle: 'Upload chain analysis / truthseeker_99', back: 'BACK TO ARCHIVE',
+          timelineTitle: 'UPLOAD CHAIN - FIRST SEEN TO CURRENT', timelineHint: 'Open each node to inspect how the claim changed as it spread.', saveTimeline: 'SAVE TIMELINE TO EVIDENCE BOARD', timelineSaved: 'Repost timeline saved as Evidence D - VERIFIED.',
+          accountTitle: 'UPLOADER PROFILE', accountSummary: 'New account. One post. Twelve followers. Identity masked.', analyze: 'ANALYZE UPLOADER',
+          accountFields: ['Created: 2026-08-13 19:47 (27 minutes before posting)', 'Followers: 12 (all accounts created Aug 13-14)', 'Following: 0', 'Posts: 1', 'Bio: "Exposing the truth they hide"', 'Location: Masked / VPN', 'Email domain: Disposable service', 'Previous activity: None'],
+          redFlags: 'RED FLAGS', redFlagItems: ['Created specifically for this upload', 'Followers are other new accounts', 'No history, identity, or accountability', 'Uses disposable infrastructure'],
+          accountConclusion: 'High probability of coordinated inauthentic behavior. This account is an amplification node, not verified proof of who created the clip.',
+          saveAccount: 'SAVE UPLOADER ANALYSIS', accountSaved: 'Uploader analysis saved as Evidence C - UNVERIFIED.',
+          proceed: 'PROCEED TO EVIDENCE BOARD', checkpointTitle: 'TRACE EVIDENCE BOARD ACCESS GRANTED', checkpointComplete: 'P07 has been unlocked. Investigation state saved. Evidence B, C, and D are available for the next analysis stage.', checkpointPartial: 'P07 has been unlocked with incomplete P06 analysis. Investigation state saved. Missing uploader or timeline evidence will remain visible on the Evidence Board.',
+          nodes: [
+            { id: 'first-seen', time: '2026-08-13 20:15', label: 'FIRST SEEN', summary: 'truthseeker_99 posts the clip on Public Feed.', detail: 'Account created the same day. Followers: 12. Location: unknown / VPN exit node.' },
+            { id: 'first-repost', time: '2026-08-13 20:22', label: 'FIRST REPOST', summary: 'CampusGossip forum republishes the post.', detail: 'Adds the headline "EXCLUSIVE: Maya Lin After Hours" without checking or linking an original source.' },
+            { id: 'amplification', time: '2026-08-13 20:45', label: 'AMPLIFICATION', summary: '@ViralNewsAggregator shares a screenshot to 87K followers.', detail: 'Caption: "Another influencer exposed?" No original link and no verification.' },
+            { id: 'headline', time: '2026-08-13 21:30', label: 'SECONDARY HEADLINES', summary: 'Three mirror sites create increasingly extreme copies.', detail: 'Titles shift from describing an allegation to declaring guilt. Context and uncertainty disappear.' },
+            { id: 'cross-platform', time: '2026-08-13 23:00', label: 'CROSS-PLATFORM', summary: 'Fragments appear on four additional platforms.', detail: 'Comments exceed 50,000. Cropped clips and screenshots separate the claim from its source.' },
+            { id: 'archived', time: '2026-08-14 02:00', label: 'FALSE SCARCITY', summary: 'A mirror claims the "original was removed."', detail: 'The scarcity framing drives urgency. Shares increase 340 percent even though the claim remains unverified.' },
+            { id: 'trace', time: '2026-08-14 07:42', label: 'TRACE INTERVENTION', summary: 'Aria Chen contacts TRACE and Case 001 opens.', detail: 'The verification request arrives after the amplification peak, showing how quickly harm outpaced review.' }
+          ]
+        },
         modal: {
           videoTitle: 'CONTENT VERIFICATION NOTICE', videoBody: 'TRACE does not display unverified intimate media. The preview remains blurred and shows only a side profile.\n\nA familiar face is not proof of an authentic context.',
           accountTitle: 'UPLOADER SNAPSHOT', accountBody: 'Account: truthseeker_99\nCreated: 2026-08-13, 27 minutes before posting\nFollowers: 12\nPosts: 1\nIdentity: Unknown\n\nA new account is a warning sign, not proof. Its claims still require verification.',
@@ -836,14 +1077,14 @@
           ariaTitle: 'MESSAGE FROM ARIA', ariaBody: 'She says it is fake. Please check before this spreads further. Please do not share the link.',
           evidenceTitle: 'TRACE NOTES', reportTitle: 'REPORT RECEIVED', reportBody: 'The post has been submitted for platform review. Reporting is not the same as verifying; continue tracing the source.',
           shareTitle: 'SHARE CHECK', shareBody: 'Sharing an unverified private clip would amplify the claim and the harm. TRACE has cancelled this share action.',
-          searchTitle: 'TRACE SEARCH ACCESS GRANTED', searchBody: 'Search Module P04 has been unlocked. Investigation state saved.\n\nThe next build will continue from this checkpoint.',
+          archiveLockedTitle: 'PROVENANCE REQUIRED', archiveLockedBody: 'Inspect the Northbridge archive record and save Evidence B before proceeding to Source Trace.',
           resetTitle: 'RESET INVESTIGATION?', resetBody: 'This clears Case 001 progress, evidence, reply status, and language preference on this device.', resetConfirm: 'Reset case'
         }
       },
       zh: {
         global: {
           product: 'TRACE', lab: '青年数字核查实验室', caseActive: '案件 001 进行中',
-          language: '切换至英文', audioOn: '关闭声音', audioOff: '开启声音', reset: '重置调查',
+          language: '切换至英文', reset: '重置调查',
           evidence: 'TRACE 笔记', objective: '目标：', objectiveText: '揭示未见之物背后的真相。',
           approach: '方法：', approachText: '核实。交叉比对。连接线索。', analyst: '用户：ANALYST_07',
           system: 'TRACE 系统 v1.0', fictional: '用于媒介与信息素养学习的虚构叙事。',
@@ -858,8 +1099,7 @@
           caseNumber: '案件 001', kicker: '280 万次观看。零个已核实来源。',
           title: '她从未\n发布过。', statNumber: '2,803,119', statLabel: '人看过这段视频。',
           desc: '但没有一个人问过它来自哪里。', start: '开始调查',
-          file: '视频_2026_08_13_20_15_00.MP4', play: '播放重建片段', pause: '暂停重建片段',
-          reconstruction: 'AI 证据重建画面'
+          file: '视频_2026_08_13_20_15_00.MP4', reconstruction: '静态证据预览'
         },
         p02: {
           page: '第 01 页', title: '紧急邮件', subtitle: '邮件 / 紧急消息', mailbox: '邮箱',
@@ -902,6 +1142,54 @@
           nextLabel: '下一步调查：', nextBody: '寻找原始来源，而不是继续沿着转载循环打转。',
           search: '搜索原始来源', back: '返回邮件', evidenceSaved: '疯传转载已保存为证据 A - 未核实。'
         },
+        p04: {
+          page: '第 03 页', title: '搜索', subtitle: '寻找来源，而不是噪音。', back: '返回爆火帖子',
+          engine: 'SearchLab', engineVersion: 'v3.4 档案索引', fixedQueries: '固定查询组', readonly: '只读',
+          results: '约 1,230,000 条索引记录（0.31 秒）', visited: '已访问', open: '打开结果',
+          tipTitle: '查询笔记', tip: '并非所有搜索结果都具有同等价值。优先寻找原始来源、机构档案和第一手记录，而不是转载或评论。',
+          queries: [
+            { id: 'maya', label: 'Maya Lin', badge: '个人网站', title: 'Maya Lin - 个人博客', url: 'www.maya-lin-creates.com', snippet: '美妆、生活方式与学习视频博客。Northbridge 大学学生。最后发布：2026年8月12日。', detailTitle: '个人博客笔记', detailBody: '该页面能确认 Maya Lin 是真实的 Northbridge 学生和内容创作者，但没有提及疯传片段。人物身份背景无法核实视频。' },
+            { id: 'uploader', label: 'truthseeker_99', badge: '账号缓存', title: 'truthseeker_99 - Public Feed 个人主页', url: 'feed.public/user/truthseeker_99', snippet: '账号创建于 2026年8月13日。12 个粉丝。1 条帖子。简介：“揭露他们隐藏的真相。”', detailTitle: '账号缓存笔记', detailBody: '该账号在上传当天创建，唯一帖子就是 Maya Lin 片段。这是警示信号，但仍需在信源追踪中完成账号分析。' },
+            { id: 'festival', label: 'Maya Lin + media festival', badge: '原始来源线索', title: 'Northbridge 大学 - 2024 媒体节', url: 'archive.northbridge.edu/events/2024/media-festival', snippet: '年度学生媒体展示。2024年11月11日。嘉宾演讲、录像档案与项目画廊。', detailTitle: '档案线索', detailBody: '该机构档案包含 Maya Lin 的公开活动记录和一条录像档案索引。', key: true },
+            { id: 'headline', label: 'You Won\'t Believe What Maya Lin Did', badge: '转载镜像', title: '【转载】你无法相信 Maya Lin 做了什么 - 镜像 1', url: 'mirror-site-47.com/viral/maya-lin', snippet: '原帖已删除。为存档目的保存。890,231 次观看。来源：Public Feed 上的 truthseeker_99。', detailTitle: '引用循环', detailBody: '该镜像引用 Public Feed 帖子，其他转载又反过来引用该镜像。这些页面互相指向，却都没有给出原始来源。' },
+            { id: 'police', label: 'Maya Lin + police report', badge: '二手报道', title: 'Maya Lin 就网络骚扰向警方报案', url: 'news.daily.com/local/2026/08/13', snippet: 'Northbridge 学生 Maya Lin 就网络虐待行为提交了骚扰报告。根据隐私政策，细节不予公开。', detailTitle: '二手报道笔记', detailBody: '该报道支持 Maya 正遭受骚扰的说法，但没有原始素材，也不能证明疯传视频来自哪里。' }
+          ]
+        },
+        p05: {
+          page: '第 04 页', title: 'NORTHBRIDGE 档案', subtitle: '机构记录 / 公开活动档案', back: '返回搜索',
+          university: 'NORTHBRIDGE 大学', office: '传播与媒体档案办公室',
+          nav: ['首页', '新闻', '活动', '档案', '联系', '搜索'], breadcrumb: '档案 > 活动 > 2024 > 媒体节',
+          eventTitle: '2024 媒体节', eventMeta: '2024年11月11日 | 学生中心礼堂',
+          eventBody: '年度媒体节展示学生在数字媒体、新闻学与创意技术领域的项目。该活动包含嘉宾演讲、公开小组讨论和录像档案索引。',
+          speakersTitle: '嘉宾演讲者', speakers: ['Elena Voss 博士 - 媒体研究系', 'Maya Lin - 内容创作者 & Northbridge 学生', 'James Park - 独立电影制作人'],
+          recordsTitle: '录像档案索引', recordName: '小组讨论：“网络中的创意与身份”',
+          recorded: '录制', recordedValue: '2024年11月11日 14:30-15:45', file: '文件', fileValue: 'mediafest_2024_panel_03.mp4', size: '大小', sizeValue: '847 MB', archiveId: '档案编号', archiveIdValue: 'NB_U_MF24_PANEL_03',
+          inspect: '检查档案记录', inspected: '档案记录已打开', frameTitle: '档案画面记录',
+          frameBody: '时间戳 00:23:17 记录了 Maya Lin 在公开小组讨论中发言。侧脸几何与面部标志点对应疯传片段中使用的脸部。',
+          transcriptTitle: '文字转录摘录', transcript: '“……这就是为什么我认为在网络上，真实比完美更重要。”',
+          matchTitle: 'TRACE 来源匹配 v0.8', matchStatus: '发现匹配', matchSource: '来源：mediafest_2024_panel_03.mp4', matchTime: '时间戳：00:23:17', matchConfidence: '置信度：高',
+          matchBody: '疯传帖子中的脸部对应这条更早的公开档案记录。这证明了脸部素材的出处，但不能证明是谁制作了篡改片段。',
+          save: '保存至证据板', evidenceSaved: '原始直播档案已保存为证据 B - 已核实。', proceed: '前往信源追踪', locked: '请先检查并保存档案记录。'
+        },
+        p06: {
+          page: '第 05 页', title: '信源追踪', subtitle: '上传链条分析 / truthseeker_99', back: '返回档案',
+          timelineTitle: '上传链条 - 从首次出现至今', timelineHint: '展开每个节点，查看说法如何在传播中发生变化。', saveTimeline: '保存时间线至证据板', timelineSaved: '转载时间线已保存为证据 D - 已核实。',
+          accountTitle: '上传者档案', accountSummary: '新账号。一条帖子。十二个粉丝。身份隐藏。', analyze: '分析上传者',
+          accountFields: ['创建：2026-08-13 19:47（发帖前 27 分钟）', '粉丝：12（全部账号创建于 8月13-14日）', '关注：0', '帖子：1', '简介：“揭露他们隐藏的真相”', '位置：隐藏 / VPN', '邮箱域名：一次性服务', '历史活动：无'],
+          redFlags: '危险信号', redFlagItems: ['账号专门为本次上传创建', '粉丝均为其他新账号', '无历史、无身份、无责任', '使用一次性基础设施'],
+          accountConclusion: '高度可能为协同不真实行为。该账号是一个放大节点，但不能证明谁制作了片段。',
+          saveAccount: '保存上传者分析', accountSaved: '上传者分析已保存为证据 C - 未核实。',
+          proceed: '前往证据板', checkpointTitle: 'TRACE 证据板访问已授权', checkpointComplete: 'P07 已解锁。调查进度已保存。证据 B、C、D 将用于下一阶段分析。', checkpointPartial: 'P07 已在 P06 分析不完整的情况下解锁。调查进度已保存。缺失的上传者或时间线证据将在证据板上保持可见。',
+          nodes: [
+            { id: 'first-seen', time: '2026-08-13 20:15', label: '首次出现', summary: 'truthseeker_99 在 Public Feed 发布片段。', detail: '账号创建于同一天。粉丝：12。位置：未知 / VPN 出口节点。' },
+            { id: 'first-repost', time: '2026-08-13 20:22', label: '首次转载', summary: 'CampusGossip 论坛重新发布帖子。', detail: '添加标题“独家：Maya Lin 的幕后时刻”，没有核查或链接原始来源。' },
+            { id: 'amplification', time: '2026-08-13 20:45', label: '放大传播', summary: '@ViralNewsAggregator 向 87K 粉丝分享截图。', detail: '配文：“又一位网红翻车？”没有原始链接，也没有核查。' },
+            { id: 'headline', time: '2026-08-13 21:30', label: '二次标题', summary: '三个镜像站创建越来越极端的副本。', detail: '标题从描述一项指控变成直接宣告有罪，语境与不确定性消失。' },
+            { id: 'cross-platform', time: '2026-08-13 23:00', label: '跨平台传播', summary: '片段出现在另外四个平台。', detail: '评论超过 50,000。裁剪片段和截图将说法与来源分离。' },
+            { id: 'archived', time: '2026-08-14 02:00', label: '虚假稀缺', summary: '镜像站声称“原帖已删除”。', detail: '稀缺叙事制造紧迫感。尽管说法仍未核实，分享量增长 340%。' },
+            { id: 'trace', time: '2026-08-14 07:42', label: 'TRACE 介入', summary: 'Aria Chen 联系 TRACE，案件 001 开启。', detail: '核查请求在传播放大高峰后才到达，显示伤害扩散的速度远超审核。' }
+          ]
+        },
         modal: {
           videoTitle: '内容核查提示', videoBody: 'TRACE 不展示未经核实的私密影像。预览保持模糊，仅显示侧脸。\n\n熟悉的脸并不能证明语境真实。',
           accountTitle: '上传者快照', accountBody: '账号：truthseeker_99\n创建：2026-08-13，发帖前 27 分钟\n粉丝：12\n帖子：1\n身份：未知\n\n新账号是警示信号，不是证据。它的说法仍需核实。',
@@ -909,21 +1197,21 @@
           ariaTitle: '来自 ARIA 的消息', ariaBody: '她说这是假的。请在这段视频进一步扩散之前核实。请不要分享链接。',
           evidenceTitle: 'TRACE 笔记', reportTitle: '举报已收到', reportBody: '该帖子已提交平台审核。举报不等于核实，请继续追溯来源。',
           shareTitle: '分享检查', shareBody: '分享未经核实的私密片段会放大说法与伤害。TRACE 已取消本次分享操作。',
-          searchTitle: 'TRACE 搜索访问已授权', searchBody: '搜索模块 P04 已解锁。调查进度已保存。\n\n下一批开发将从此检查点继续。',
+          archiveLockedTitle: '需要出处证据', archiveLockedBody: '请检查 Northbridge 档案记录并保存证据 B，然后再进入信源追踪。',
           resetTitle: '重置调查？', resetBody: '这将清除此设备上的案件 001 进度、证据、回复状态和语言偏好。', resetConfirm: '重置案件'
         }
       }
     };
 
     let state = loadState();
+    if (!localStorage.getItem(STORAGE_KEY) && localStorage.getItem(STORAGE_KEY_V1)) saveState();
     let activeModal = null;
     let lastFocus = null;
     let replyOpen = false;
-    let playerPlaying = false;
+    let expandedTraceNode = 'first-seen';
     let renderToken = 0;
     let bootTimer = null;
     let toastTimer = null;
-    let audioContext = null;
 
     const app = document.getElementById('app');
     const dialogBackdrop = document.getElementById('dialog-backdrop');
@@ -942,23 +1230,33 @@
 
     function loadState() {
       try {
-        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (!raw || raw.version !== 1) return { ...DEFAULT_STATE };
+        const rawV2 = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const rawV1 = JSON.parse(localStorage.getItem(STORAGE_KEY_V1));
+        const raw = rawV2?.version === 2 ? rawV2 : rawV1?.version === 1 ? rawV1 : null;
+        if (!raw) return { ...DEFAULT_STATE };
         const language = raw.language === 'zh' ? 'zh' : 'en';
-        const currentScene = SCENES.includes(raw.currentScene) && sceneIndex(raw.currentScene) <= 3 ? raw.currentScene : 'P00';
+        const currentScene = SCENES.includes(raw.currentScene) && sceneIndex(raw.currentScene) <= 6 ? raw.currentScene : 'P00';
         const maxUnlockedScene = SCENES.includes(raw.maxUnlockedScene) ? raw.maxUnlockedScene : 'P00';
-        const evidence = Array.isArray(raw.evidence) ? [...new Set(raw.evidence.filter(id => id === 'A' || id === 'E'))] : [];
+        const evidence = Array.isArray(raw.evidence) ? [...new Set(raw.evidence.filter(id => Object.hasOwn(EVIDENCE, id)))] : [];
+        const selectedSearchQuery = ['maya', 'uploader', 'festival', 'headline', 'police'].includes(raw.selectedSearchQuery) ? raw.selectedSearchQuery : 'maya';
+        const visitedQueries = Array.isArray(raw.visitedQueries)
+          ? [...new Set(raw.visitedQueries.filter(id => ['maya', 'uploader', 'festival', 'headline', 'police'].includes(id)))]
+          : [];
         return {
           ...DEFAULT_STATE,
           ...raw,
+          version: 2,
           language,
           currentScene,
           maxUnlockedScene,
           evidence,
           replyChoice: raw.replyChoice === 0 || raw.replyChoice === 1 ? raw.replyChoice : null,
           replySent: Boolean(raw.replySent),
-          audioEnabled: Boolean(raw.audioEnabled),
-          openingSeen: Boolean(raw.openingSeen)
+          openingSeen: Boolean(raw.openingSeen),
+          selectedSearchQuery,
+          visitedQueries,
+          archiveRecordInspected: Boolean(raw.archiveRecordInspected),
+          uploaderAnalysisOpened: Boolean(raw.uploaderAnalysisOpened)
         };
       } catch (error) {
         return { ...DEFAULT_STATE };
@@ -993,54 +1291,7 @@
       toastTimer = setTimeout(() => liveStatus.classList.remove('is-visible'), 2600);
     }
 
-    function ensureAudio() {
-      if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') audioContext.resume();
-      return audioContext;
-    }
-
-    function playTone(type) {
-      if (!state.audioEnabled) return;
-      try {
-        const ctx = ensureAudio();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        const now = ctx.currentTime;
-        osc.type = type === 'success' ? 'triangle' : 'square';
-        osc.frequency.setValueAtTime(type === 'success' ? 520 : 760, now);
-        if (type === 'success') osc.frequency.linearRampToValueAtTime(940, now + .16);
-        gain.gain.setValueAtTime(.035, now);
-        gain.gain.exponentialRampToValueAtTime(.001, now + (type === 'success' ? .22 : .05));
-        osc.start(now);
-        osc.stop(now + (type === 'success' ? .23 : .06));
-      } catch (error) {
-        state.audioEnabled = false;
-        saveState();
-      }
-    }
-
-    function playBootNoise() {
-      if (!state.audioEnabled) return;
-      try {
-        const ctx = ensureAudio();
-        const length = Math.floor(ctx.sampleRate * .45);
-        const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let index = 0; index < length; index += 1) data[index] = (Math.random() * 2 - 1) * (1 - index / length);
-        const source = ctx.createBufferSource();
-        const gain = ctx.createGain();
-        source.buffer = buffer;
-        gain.gain.value = .025;
-        source.connect(gain);
-        gain.connect(ctx.destination);
-        source.start();
-      } catch (error) { /* Browser audio support is optional. */ }
-    }
-
     function dispatch(action, payload = {}) {
-      playTone('click');
       switch (action) {
         case 'NAVIGATE': {
           const target = payload.scene;
@@ -1077,17 +1328,6 @@
           render(false);
           announce(state.language === 'en' ? 'Language switched to English.' : '语言已切换至中文。');
           break;
-        case 'TOGGLE_AUDIO':
-          state.audioEnabled = !state.audioEnabled;
-          saveState();
-          if (state.audioEnabled) { ensureAudio(); playBootNoise(); }
-          render(false);
-          announce(state.audioEnabled ? (state.language === 'en' ? 'Audio enabled.' : '声音已开启。') : (state.language === 'en' ? 'Audio muted.' : '声音已关闭。'));
-          break;
-        case 'TOGGLE_PLAYER':
-          playerPlaying = !playerPlaying;
-          render(false);
-          break;
         case 'OPEN_REPLY':
           replyOpen = true;
           render(false);
@@ -1110,10 +1350,22 @@
           openModal({ title: copy().p02.reply, body: copy().p02.replySent });
           break;
         case 'SAVE_EVIDENCE': {
+          if (payload.id === 'B' && !state.archiveRecordInspected) return;
+          if (payload.id === 'C' && !state.uploaderAnalysisOpened) return;
           const added = addEvidence(payload.id);
-          const message = payload.id === 'A' ? copy().p03.evidenceSaved : copy().p02.evidenceSaved;
+          const messages = {
+            A: copy().p03.evidenceSaved,
+            B: copy().p05.evidenceSaved,
+            C: copy().p06.accountSaved,
+            D: copy().p06.timelineSaved,
+            E: copy().p02.evidenceSaved
+          };
+          const message = messages[payload.id] || copy().modal.evidenceTitle;
+          if (payload.id === 'B') unlockScene('P06');
+          saveState();
+          render(false);
           openModal({ title: copy().modal.evidenceTitle, body: message });
-          if (added) playTone('success');
+          if (added) announce(message);
           break;
         }
         case 'SHOW_VIDEO_NOTICE':
@@ -1136,10 +1388,72 @@
           break;
         case 'UNLOCK_SEARCH':
           unlockScene('P04');
+          state.currentScene = 'P04';
+          if (!state.visitedQueries.includes(state.selectedSearchQuery)) state.visitedQueries = [...state.visitedQueries, state.selectedSearchQuery];
           saveState();
-          openModal({ title: copy().modal.searchTitle, body: copy().modal.searchBody });
-          playTone('success');
+          render(true);
           break;
+        case 'SELECT_SEARCH_QUERY': {
+          const query = copy().p04.queries.find(item => item.id === payload.query);
+          if (!query) return;
+          state.selectedSearchQuery = query.id;
+          if (!state.visitedQueries.includes(query.id)) state.visitedQueries = [...state.visitedQueries, query.id];
+          saveState();
+          render(false);
+          requestAnimationFrame(() => document.getElementById('search-result-title')?.focus());
+          break;
+        }
+        case 'OPEN_SEARCH_RESULT': {
+          const result = copy().p04.queries.find(item => item.id === payload.query);
+          if (!result) return;
+          if (!state.visitedQueries.includes(result.id)) state.visitedQueries = [...state.visitedQueries, result.id];
+          if (result.key) {
+            unlockScene('P05');
+            state.currentScene = 'P05';
+            saveState();
+            render(true);
+          } else {
+            saveState();
+            openModal({ title: result.detailTitle, body: result.detailBody });
+          }
+          break;
+        }
+        case 'INSPECT_ARCHIVE':
+          state.archiveRecordInspected = true;
+          saveState();
+          render(false);
+          requestAnimationFrame(() => document.getElementById('source-match')?.focus());
+          break;
+        case 'OPEN_SOURCE_TRACE':
+          if (!state.archiveRecordInspected || !hasEvidence('B')) {
+            openModal({ title: copy().modal.archiveLockedTitle, body: copy().modal.archiveLockedBody });
+            return;
+          }
+          unlockScene('P06');
+          state.currentScene = 'P06';
+          saveState();
+          render(true);
+          break;
+        case 'TOGGLE_TRACE_NODE':
+          expandedTraceNode = expandedTraceNode === payload.node ? null : payload.node;
+          render(false);
+          break;
+        case 'OPEN_UPLOADER_ANALYSIS':
+          state.uploaderAnalysisOpened = true;
+          saveState();
+          render(false);
+          requestAnimationFrame(() => document.getElementById('uploader-analysis')?.focus());
+          break;
+        case 'UNLOCK_BOARD': {
+          unlockScene('P07');
+          saveState();
+          const complete = hasEvidence('C') && hasEvidence('D');
+          openModal({
+            title: copy().p06.checkpointTitle,
+            body: complete ? copy().p06.checkpointComplete : copy().p06.checkpointPartial
+          });
+          break;
+        }
         case 'OPEN_RESET':
           openModal({
             title: copy().modal.resetTitle,
@@ -1152,9 +1466,10 @@
           break;
         case 'CONFIRM_RESET':
           localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_KEY_V1);
           state = { ...DEFAULT_STATE };
           replyOpen = false;
-          playerPlaying = false;
+          expandedTraceNode = 'first-seen';
           closeModal(false);
           render(true);
           break;
@@ -1208,7 +1523,6 @@
           </div>
           <div class="top-actions">
             <span class="evidence-counter">${icon('save')} ${escapeHTML(t.global.evidence)} <strong>${state.evidence.length}/6</strong></span>
-            <button class="tool-button" type="button" data-action="TOGGLE_AUDIO" title="${escapeHTML(state.audioEnabled ? t.global.audioOn : t.global.audioOff)}" aria-label="${escapeHTML(state.audioEnabled ? t.global.audioOn : t.global.audioOff)}">${icon(state.audioEnabled ? 'volume' : 'volume-off')}</button>
             <button class="text-button" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
             <button class="tool-button" type="button" data-action="OPEN_RESET" title="${escapeHTML(t.global.reset)}" aria-label="${escapeHTML(t.global.reset)}">${icon('reset')}</button>
           </div>
@@ -1231,7 +1545,6 @@
       return `
         <section class="boot-screen" aria-labelledby="boot-title">
           <div class="boot-controls">
-            <button class="tool-button" type="button" data-action="TOGGLE_AUDIO" title="${escapeHTML(state.audioEnabled ? t.global.audioOn : t.global.audioOff)}" aria-label="${escapeHTML(state.audioEnabled ? t.global.audioOn : t.global.audioOff)}">${icon(state.audioEnabled ? 'volume' : 'volume-off')}</button>
             <button class="text-button" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
           </div>
           <div class="boot-terminal">
@@ -1247,7 +1560,6 @@
 
     function renderP01() {
       const t = copy();
-      const playerLabel = playerPlaying ? t.p01.pause : t.p01.play;
       return `
         <div class="shell">
           ${renderHeader()}
@@ -1260,20 +1572,18 @@
               <p class="home-desc">${escapeHTML(t.p01.desc)}</p>
               <button class="primary-button" type="button" data-action="START_CASE">${escapeHTML(t.p01.start)} ${icon('chevron')}</button>
             </div>
-            <div class="retro-player ${playerPlaying ? 'is-playing' : ''}">
-              <div class="player-titlebar"><span>${escapeHTML(t.p01.file)}</span><span>${playerPlaying ? '00:00:19:42' : '00:00:00:00'}</span></div>
-              <div class="viral-still">
-                <button class="play-button" type="button" data-action="TOGGLE_PLAYER" title="${escapeHTML(playerLabel)}" aria-label="${escapeHTML(playerLabel)}">${icon(playerPlaying ? 'pause' : 'play')}</button>
-              </div>
-              <div class="player-controls"><span>${icon(playerPlaying ? 'pause' : 'play')}</span><div class="player-progress"><span></span></div><span>${escapeHTML(t.p01.reconstruction)}</span></div>
+            <div class="retro-player">
+              <div class="player-titlebar"><span>${escapeHTML(t.p01.file)}</span><span>00:00:00:00</span></div>
+              <div class="viral-still"><span class="media-static-badge">${icon('eye')} ${escapeHTML(t.p01.reconstruction)}</span></div>
+              <div class="player-controls"><span>${escapeHTML(t.p01.reconstruction)}</span><div class="player-progress"><span></span></div><span>CASE 001</span></div>
             </div>
           </section>
           ${renderFooter()}
         </div>`;
     }
 
-    function renderPageMeta(page) {
-      return `<div class="page-meta"><button class="comment-link" type="button" data-action="NAVIGATE" data-scene="P01">${icon('back')} ${escapeHTML(copy().global.backCase)}</button><span>|</span><span class="page-number">${escapeHTML(page)}</span></div>`;
+    function renderPageMeta(page, backScene = 'P01', backLabel = copy().global.backCase) {
+      return `<div class="page-meta"><button class="comment-link" type="button" data-action="NAVIGATE" data-scene="${escapeHTML(backScene)}">${icon('back')} ${escapeHTML(backLabel)}</button><span>|</span><span class="page-number">${escapeHTML(page)}</span></div>`;
     }
 
     function renderP02() {
@@ -1374,7 +1684,7 @@
                     <h2>${escapeHTML(t.p03.postTitle)}</h2>
                     <p class="post-copy">${escapeHTML(t.p03.postBody)}<br><span class="footer-small">${escapeHTML(t.p03.accountFacts)}</span></p>
                     <button class="feed-video" type="button" data-action="SHOW_VIDEO_NOTICE" aria-label="${escapeHTML(t.modal.videoTitle)}">
-                      <span class="viral-still"><span class="play-button" aria-hidden="true">${icon('play')}</span><span class="video-duration">${escapeHTML(t.p03.duration)}</span></span>
+                      <span class="viral-still"><span class="media-static-badge">${icon('eye')} ${escapeHTML(t.modal.videoTitle)}</span><span class="video-duration">${escapeHTML(t.p03.duration)}</span></span>
                     </button>
                     <div class="post-stats"><span>${escapeHTML(t.p03.views)}</span><span>${escapeHTML(t.p03.shares)}</span><span>${escapeHTML(t.p03.commentsCount)}</span></div>
                     <div class="post-actions">
@@ -1416,7 +1726,169 @@
         </div>`;
     }
 
-    const RENDERERS = { P00: renderP00, P01: renderP01, P02: renderP02, P03: renderP03 };
+    function renderP04() {
+      const t = copy();
+      const result = t.p04.queries.find(item => item.id === state.selectedSearchQuery) || t.p04.queries[0];
+      const visited = state.visitedQueries.includes(result.id);
+      return `
+        <div class="shell">
+          ${renderHeader()}
+          ${renderPageMeta(t.p04.page, 'P03', t.p04.back)}
+          <section class="page-main" aria-labelledby="scene-title">
+            <h1 id="scene-title" class="scene-heading" tabindex="-1">${escapeHTML(t.p04.title)}</h1>
+            <p class="scene-subtitle">${escapeHTML(t.p04.subtitle)}</p>
+            <hr class="scene-rule">
+            <div class="search-lab">
+              <header class="search-lab-head">
+                <div><strong>${escapeHTML(t.p04.engine)}</strong><span>${escapeHTML(t.p04.engineVersion)}</span></div>
+                <span class="search-readonly">${escapeHTML(t.p04.readonly)}</span>
+              </header>
+              <div class="search-query-bar">
+                ${icon('search')}
+                <input type="text" value="${escapeHTML(result.label)}" readonly aria-readonly="true" aria-label="${escapeHTML(t.p04.fixedQueries)}">
+              </div>
+              <div class="query-presets" role="group" aria-label="${escapeHTML(t.p04.fixedQueries)}">
+                <span class="query-presets-label">${escapeHTML(t.p04.fixedQueries)}:</span>
+                ${t.p04.queries.map(query => `<button type="button" class="query-button ${state.selectedSearchQuery === query.id ? 'active' : ''} ${state.visitedQueries.includes(query.id) ? 'visited' : ''}" data-action="SELECT_SEARCH_QUERY" data-query="${escapeHTML(query.id)}" aria-pressed="${state.selectedSearchQuery === query.id}">${escapeHTML(query.label)}</button>`).join('')}
+              </div>
+              <div class="search-stats">${escapeHTML(t.p04.results)}</div>
+              <article class="search-result-card ${result.key ? 'key-result' : ''}">
+                <div class="result-index">01</div>
+                <div class="result-copy">
+                  <div class="result-meta"><span>${escapeHTML(result.badge)}</span>${visited ? `<span class="visited-label">${escapeHTML(t.p04.visited)}</span>` : ''}</div>
+                  <button id="search-result-title" class="search-result-link ${visited ? 'visited' : ''}" type="button" data-action="OPEN_SEARCH_RESULT" data-query="${escapeHTML(result.id)}">${escapeHTML(result.title)}</button>
+                  <div class="result-url">${escapeHTML(result.url)}</div>
+                  <p>${escapeHTML(result.snippet)}</p>
+                  <button class="result-open" type="button" data-action="OPEN_SEARCH_RESULT" data-query="${escapeHTML(result.id)}">[ ${escapeHTML(t.p04.open)} ${icon('chevron')} ]</button>
+                </div>
+              </article>
+              <aside class="search-tip"><strong>${escapeHTML(t.p04.tipTitle)}</strong><p>${escapeHTML(t.p04.tip)}</p></aside>
+            </div>
+          </section>
+          ${renderFooter()}
+        </div>`;
+    }
+
+    function renderP05() {
+      const t = copy();
+      return `
+        <div class="shell">
+          ${renderHeader()}
+          ${renderPageMeta(t.p05.page, 'P04', t.p05.back)}
+          <section class="page-main archive-wrap" aria-labelledby="scene-title">
+            <div class="archive-site">
+              <header class="archive-brand">
+                <div class="archive-seal">NB</div>
+                <div><h1 id="scene-title" tabindex="-1">${escapeHTML(t.p05.university)}</h1><p>${escapeHTML(t.p05.office)}</p></div>
+              </header>
+              <nav class="archive-nav" aria-label="${escapeHTML(t.p05.university)}">${t.p05.nav.map((item, index) => `<span class="${index === 3 ? 'active' : ''}">${escapeHTML(item)}</span>`).join('')}</nav>
+              <div class="archive-breadcrumb">${escapeHTML(t.p05.breadcrumb)}</div>
+              <div class="archive-layout">
+                <aside class="archive-sidebar">
+                  <strong>${escapeHTML(t.p05.recordsTitle)}</strong>
+                  <span>2026</span><span>2025</span><span class="active">2024</span><span>2023</span>
+                </aside>
+                <div class="archive-content">
+                  <h2>${escapeHTML(t.p05.eventTitle)}</h2>
+                  <p class="archive-event-meta">${escapeHTML(t.p05.eventMeta)}</p>
+                  <p>${escapeHTML(t.p05.eventBody)}</p>
+                  <section class="speaker-list">
+                    <h3>${escapeHTML(t.p05.speakersTitle)}</h3>
+                    <ul>${t.p05.speakers.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+                  </section>
+                  <section class="archive-record">
+                    <div class="archive-record-head"><span>${icon('save')} ${escapeHTML(t.p05.recordsTitle)}</span><span>${escapeHTML(t.p05.archiveIdValue)}</span></div>
+                    <h3>${escapeHTML(t.p05.recordName)}</h3>
+                    <dl>
+                      <dt>${escapeHTML(t.p05.recorded)}</dt><dd>${escapeHTML(t.p05.recordedValue)}</dd>
+                      <dt>${escapeHTML(t.p05.file)}</dt><dd>${escapeHTML(t.p05.fileValue)}</dd>
+                      <dt>${escapeHTML(t.p05.size)}</dt><dd>${escapeHTML(t.p05.sizeValue)}</dd>
+                      <dt>${escapeHTML(t.p05.archiveId)}</dt><dd>${escapeHTML(t.p05.archiveIdValue)}</dd>
+                    </dl>
+                    <button class="archive-link-button" type="button" data-action="INSPECT_ARCHIVE">[ ${escapeHTML(state.archiveRecordInspected ? t.p05.inspected : t.p05.inspect)} ${icon('chevron')} ]</button>
+                  </section>
+                  ${state.archiveRecordInspected ? `
+                    <section class="archive-inspection">
+                      <div class="archive-frame-record">
+                        <div class="archive-frame-label">${escapeHTML(t.p05.frameTitle)} // 00:23:17</div>
+                        <div class="archive-frame-visual">${icon('eye')}<strong>MAYA LIN</strong><span>PUBLIC PANEL // SIDE PROFILE</span></div>
+                        <p>${escapeHTML(t.p05.frameBody)}</p>
+                        <h3>${escapeHTML(t.p05.transcriptTitle)}</h3>
+                        <blockquote>${escapeHTML(t.p05.transcript)}</blockquote>
+                      </div>
+                      <aside id="source-match" class="source-match" tabindex="-1">
+                        <h3>${escapeHTML(t.p05.matchTitle)}</h3>
+                        <strong class="match-status">${icon('check')} ${escapeHTML(t.p05.matchStatus)}</strong>
+                        <p>${escapeHTML(t.p05.matchSource)}<br>${escapeHTML(t.p05.matchTime)}<br>${escapeHTML(t.p05.matchConfidence)}</p>
+                        <p>${escapeHTML(t.p05.matchBody)}</p>
+                        <button class="primary-button" type="button" data-action="SAVE_EVIDENCE" data-evidence="B">${icon(hasEvidence('B') ? 'check' : 'save')} ${escapeHTML(t.p05.save)}</button>
+                      </aside>
+                    </section>` : ''}
+                  <div class="archive-next">
+                    <span class="${hasEvidence('B') ? 'saved-status' : 'archive-lock-note'}">${hasEvidence('B') ? `${icon('check')} ${escapeHTML(t.global.saved)} [B]` : escapeHTML(t.p05.locked)}</span>
+                    <button class="primary-button" type="button" data-action="OPEN_SOURCE_TRACE" ${hasEvidence('B') ? '' : 'disabled'}>${escapeHTML(t.p05.proceed)} ${icon('chevron')}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          ${renderFooter()}
+        </div>`;
+    }
+
+    function renderP06() {
+      const t = copy();
+      return `
+        <div class="shell">
+          ${renderHeader()}
+          ${renderPageMeta(t.p06.page, 'P05', t.p06.back)}
+          <section class="page-main" aria-labelledby="scene-title">
+            <h1 id="scene-title" class="scene-heading" tabindex="-1">${escapeHTML(t.p06.title)}</h1>
+            <p class="scene-subtitle">${escapeHTML(t.p06.subtitle)}</p>
+            <hr class="scene-rule">
+            <div class="trace-layout">
+              <section class="trace-timeline" aria-labelledby="timeline-title">
+                <header class="trace-panel-head"><div><h2 id="timeline-title">${escapeHTML(t.p06.timelineTitle)}</h2><p>${escapeHTML(t.p06.timelineHint)}</p></div><span>${hasEvidence('D') ? `${icon('check')} [D]` : '7 NODES'}</span></header>
+                <div class="trace-nodes">
+                  ${t.p06.nodes.map((node, index) => {
+                    const expanded = expandedTraceNode === node.id;
+                    return `<article class="trace-node ${expanded ? 'expanded' : ''}">
+                      <button type="button" data-action="TOGGLE_TRACE_NODE" data-node="${escapeHTML(node.id)}" aria-expanded="${expanded}">
+                        <span class="trace-node-index">${String(index + 1).padStart(2, '0')}</span>
+                        <span class="trace-node-time">${escapeHTML(node.time)}</span>
+                        <strong>${escapeHTML(node.label)}</strong>
+                        <span class="trace-node-summary">${escapeHTML(node.summary)}</span>
+                        ${icon('chevron')}
+                      </button>
+                      ${expanded ? `<div class="trace-node-detail">${escapeHTML(node.detail)}</div>` : ''}
+                    </article>`;
+                  }).join('')}
+                </div>
+                <button class="secondary-button trace-save" type="button" data-action="SAVE_EVIDENCE" data-evidence="D">${icon(hasEvidence('D') ? 'check' : 'save')} ${escapeHTML(t.p06.saveTimeline)}</button>
+              </section>
+              <aside class="uploader-panel" aria-labelledby="uploader-title">
+                <header class="trace-panel-head"><h2 id="uploader-title">${escapeHTML(t.p06.accountTitle)}</h2><span>${hasEvidence('C') ? `${icon('check')} [C]` : 'OSINT'}</span></header>
+                <div class="uploader-summary"><div class="avatar">${icon('user')}</div><div><strong>truthseeker_99</strong><p>${escapeHTML(t.p06.accountSummary)}</p></div></div>
+                ${state.uploaderAnalysisOpened ? `
+                  <div id="uploader-analysis" class="uploader-analysis" tabindex="-1">
+                    <dl>${t.p06.accountFields.map(item => `<div><dt>${escapeHTML(item.split(':')[0])}</dt><dd>${escapeHTML(item.includes(':') ? item.slice(item.indexOf(':') + 1).trim() : item)}</dd></div>`).join('')}</dl>
+                    <h3>${escapeHTML(t.p06.redFlags)}</h3>
+                    <ul>${t.p06.redFlagItems.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+                    <p class="account-conclusion">${escapeHTML(t.p06.accountConclusion)}</p>
+                    <button class="secondary-button" type="button" data-action="SAVE_EVIDENCE" data-evidence="C">${icon(hasEvidence('C') ? 'check' : 'save')} ${escapeHTML(t.p06.saveAccount)}</button>
+                  </div>` : `<button class="primary-button analyze-button" type="button" data-action="OPEN_UPLOADER_ANALYSIS">${icon('search')} ${escapeHTML(t.p06.analyze)}</button>`}
+              </aside>
+            </div>
+            <section class="trace-next">
+              <div class="trace-evidence-status"><span class="verified">${icon('check')} B</span><span class="${hasEvidence('C') ? 'verified' : ''}">${hasEvidence('C') ? icon('check') : icon('alert')} C</span><span class="${hasEvidence('D') ? 'verified' : ''}">${hasEvidence('D') ? icon('check') : icon('alert')} D</span></div>
+              <button class="primary-button" type="button" data-action="UNLOCK_BOARD">${escapeHTML(t.p06.proceed)} ${icon('chevron')}</button>
+            </section>
+          </section>
+          ${renderFooter()}
+        </div>`;
+    }
+
+    const RENDERERS = { P00: renderP00, P01: renderP01, P02: renderP02, P03: renderP03, P04: renderP04, P05: renderP05, P06: renderP06 };
 
     function render(moveFocus = false) {
       clearTimeout(bootTimer);
@@ -1464,7 +1936,9 @@
       dispatch(action, {
         scene: control.dataset.scene,
         id: control.dataset.evidence,
-        choice: control.dataset.choice
+        choice: control.dataset.choice,
+        query: control.dataset.query,
+        node: control.dataset.node
       });
     });
 
