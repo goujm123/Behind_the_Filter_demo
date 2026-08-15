@@ -692,6 +692,14 @@
     .archive-frame-visual { min-height: 180px; display: grid; place-content: center; gap: 8px; border: 1px solid #747c86; color: #e0e7f3; background: #111820; text-align: center; font-family: var(--mono); }
     .archive-frame-visual .icon { width: 34px; height: 34px; margin: auto; }
     .archive-frame-visual span { color: #8998aa; font-size: 11px; }
+    .archive-frame-video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    border: 1px solid #747c86;
+    background: #000;
+    }
     .archive-frame-record p, .source-match p { line-height: 1.5; }
     .archive-frame-record h3, .source-match h3 { color: #17396e; font-size: 14px; }
     .archive-frame-record blockquote { margin: 8px 0 0; padding: 10px 13px; border-left: 4px solid #b89b48; background: #f0f0ec; font-family: Georgia, serif; }
@@ -1044,7 +1052,7 @@
           speakersTitle: 'GUEST SPEAKERS', speakers: ['Dr. Elena Voss - Department of Media Studies', 'Maya Lin - Content Creator & Northbridge Student', 'James Park - Independent Filmmaker'],
           recordsTitle: 'ARCHIVED RECORDING INDEX', recordName: 'Panel Discussion: "Creativity and Identity Online"',
           recorded: 'Recorded', recordedValue: 'November 11, 2024, 14:30-15:45', file: 'File', fileValue: 'mediafest_2024_panel_03.mp4', size: 'Size', sizeValue: '847 MB', archiveId: 'Archive ID', archiveIdValue: 'NB_U_MF24_PANEL_03',
-          inspect: 'INSPECT ARCHIVE RECORD', inspected: 'ARCHIVE RECORD OPEN', frameTitle: 'ARCHIVED FRAME RECORD',
+          inspect: 'INSPECT ARCHIVE RECORD', inspected: 'ARCHIVE RECORD OPEN', frameTitle: 'ARCHIVED VIDEO RECORD',
           frameBody: 'Timestamp 00:23:17 records Maya Lin speaking at a public panel. The side-profile geometry and facial landmarks correspond to the face used in the viral clip.',
           transcriptTitle: 'TRANSCRIPT EXCERPT', transcript: '"...and that is why I think authenticity matters more than perfection online."',
           matchTitle: 'TRACE SOURCE MATCH v0.8', matchStatus: 'MATCH FOUND', matchSource: 'Source: mediafest_2024_panel_03.mp4', matchTime: 'Timestamp: 00:23:17', matchConfidence: 'Confidence: High',
@@ -1811,7 +1819,12 @@
                     <section class="archive-inspection">
                       <div class="archive-frame-record">
                         <div class="archive-frame-label">${escapeHTML(t.p05.frameTitle)} // 00:23:17</div>
-                        <div class="archive-frame-visual">${icon('eye')}<strong>MAYA LIN</strong><span>PUBLIC PANEL // SIDE PROFILE</span></div>
+                        
+                        <video class="archive-frame-video" controls playsinline preload="metadata">
+                          <source src="materials/videos/original-video.mp4" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                        
                         <p>${escapeHTML(t.p05.frameBody)}</p>
                         <h3>${escapeHTML(t.p05.transcriptTitle)}</h3>
                         <blockquote>${escapeHTML(t.p05.transcript)}</blockquote>
