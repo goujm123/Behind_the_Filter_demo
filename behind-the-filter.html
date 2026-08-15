@@ -1321,6 +1321,10 @@
         case 'START_CASE':
           unlockScene('P02');
           state.currentScene = 'P02';
+
+          // Start heartbeat directly from user's click
+          startMailHeartbeatOnce();
+
           saveState();
           render(true);
           break;
@@ -1530,16 +1534,22 @@
     function startMailHeartbeatOnce() {
       if (mailHeartbeatPlayed) return;
 
-      mailHeartbeatPlayed = true;
       mailHeartbeatSound.currentTime = 0;
-      mailHeartbeatSound.play().catch(() => {});
+      mailHeartbeatSound.loop = true;
 
-      clearTimeout(mailHeartbeatTimer);
+      mailHeartbeatSound.play().then(() => {
+        mailHeartbeatPlayed = true;
 
-      mailHeartbeatTimer = setTimeout(() => {
-        mailHeartbeatSound.pause();
-        mailHeartbeatSound.currentTime = 0;
-      }, 15000);
+        clearTimeout(mailHeartbeatTimer);
+
+        mailHeartbeatTimer = setTimeout(() => {
+          mailHeartbeatSound.pause();
+          mailHeartbeatSound.currentTime = 0;
+          mailHeartbeatSound.loop = false;
+        }, 15000);
+      }).catch(error => {
+        console.error('Heartbeat failed:', error);
+      });
     }
 
     function stopMailHeartbeat() {
@@ -1956,9 +1966,7 @@
         startBootSequence(renderToken);
       }
 
-      if (state.currentScene === 'P02') {
-        startMailHeartbeatOnce();
-      } else {
+      if (state.currentScene !== 'P02') {
         stopMailHeartbeat();
       }
 
