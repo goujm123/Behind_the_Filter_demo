@@ -1517,6 +1517,36 @@
       typingSound.pause();
       typingSound.currentTime = 0;
     }
+
+    const mailHeartbeatSound =
+      new Audio('./materials/sound/effects/打开邮件的心跳声.wav');
+
+    mailHeartbeatSound.preload = 'auto';
+    mailHeartbeatSound.volume = 0.6;
+
+    let mailHeartbeatPlayed = false;
+    let mailHeartbeatTimer = null;
+
+    function startMailHeartbeatOnce() {
+      if (mailHeartbeatPlayed) return;
+
+      mailHeartbeatPlayed = true;
+      mailHeartbeatSound.currentTime = 0;
+      mailHeartbeatSound.play().catch(() => {});
+
+      clearTimeout(mailHeartbeatTimer);
+
+      mailHeartbeatTimer = setTimeout(() => {
+        mailHeartbeatSound.pause();
+        mailHeartbeatSound.currentTime = 0;
+      }, 15000);
+    }
+
+    function stopMailHeartbeat() {
+      clearTimeout(mailHeartbeatTimer);
+      mailHeartbeatSound.pause();
+      mailHeartbeatSound.currentTime = 0;
+    }
     
     function renderModal() {
       if (!activeModal) { dialogBackdrop.hidden = true; return; }
@@ -1922,9 +1952,21 @@
       document.title = state.language === 'zh' ? '滤镜之后 | 案件 001' : 'Behind the Filter | Case 001';
       app.innerHTML = renderer();
       renderModal();
-      if (state.currentScene === 'P00') startBootSequence(renderToken);
-      if (moveFocus) requestAnimationFrame(() => document.getElementById('scene-title')?.focus());
-    }
+      if (state.currentScene === 'P00') {
+        startBootSequence(renderToken);
+      }
+
+      if (state.currentScene === 'P02') {
+        startMailHeartbeatOnce();
+      } else {
+        stopMailHeartbeat();
+      }
+
+      if (moveFocus) {
+        requestAnimationFrame(() =>
+          document.getElementById('scene-title')?.focus()
+        );
+      }
 
     function startBootSequence(token) {
       const target = document.getElementById('boot-copy');
