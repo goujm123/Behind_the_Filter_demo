@@ -1941,11 +1941,26 @@
       step();
     }
 
+    const buttonClickSound = new Audio('./materials/sound/effects/鼠标单击声.mp3');
+    buttonClickSound.preload = 'auto';
+    buttonClickSound.volume = 0.6;
+    
     document.addEventListener('click', event => {
+      // Play sound for every button click
+      const button = event.target.closest('button');
+
+      if (button && !button.disabled) {
+        buttonClickSound.currentTime = 0;
+        buttonClickSound.play().catch(() => {});
+      }
+
+      // Existing button/action logic
       const control = event.target.closest('[data-action]');
       if (!control) return;
+
       const action = control.dataset.action;
       if (action === 'SELECT_REPLY') return;
+
       dispatch(action, {
         scene: control.dataset.scene,
         id: control.dataset.evidence,
