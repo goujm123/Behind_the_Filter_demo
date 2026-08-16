@@ -750,6 +750,102 @@
     .trace-evidence-status span { display: inline-flex; align-items: center; gap: 5px; min-width: 52px; padding: 7px 9px; border: 1px solid #7d6230; color: var(--yellow); }
     .trace-evidence-status span.verified { border-color: #34734c; color: var(--green); }
 
+    /* P07 */
+    .board-layout { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 20px; align-items: start; }
+    .evidence-board-stage { position: relative; min-width: 0; }
+    .evidence-grid { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .connection-overlay { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+    .connection-overlay line { stroke: var(--yellow); stroke-width: 2; stroke-dasharray: 7 5; vector-effect: non-scaling-stroke; }
+    .evidence-card { min-width: 0; border: 1px solid #596779; background: #070c12; box-shadow: inset 0 3px 0 #12213b; }
+    .evidence-card.is-locked { border-color: #343b45; color: #77808d; background: #05070a; }
+    .evidence-card.is-connect-selected { border-color: var(--yellow); box-shadow: inset 0 3px 0 var(--yellow), 0 0 0 1px #e2b94e55; }
+    .evidence-card-head { min-height: 52px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #46515e; background: #0d1a31; }
+    .evidence-card-head h2 { min-width: 0; margin: 0; color: var(--blue-pale); font-size: 15px; overflow-wrap: anywhere; }
+    .evidence-id { color: white; }
+    .evidence-state { flex: 0 0 auto; padding: 3px 6px; border: 1px solid #7b6331; color: var(--yellow); font-size: 10px; }
+    .evidence-state.confirmed { border-color: #34734c; color: var(--green); }
+    .evidence-card-body { padding: 14px; }
+    .evidence-source { margin: 0 0 10px; color: var(--blue); font-size: 11px; }
+    .evidence-card dl { margin: 0; }
+    .evidence-card dl div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; padding: 4px 0; }
+    .evidence-card dt { color: #8290a4; }
+    .evidence-card dd { margin: 0; overflow-wrap: anywhere; }
+    .evidence-note { margin: 12px 0; color: #b9c2ce; line-height: 1.5; }
+    .evidence-warning { padding-left: 10px; border-left: 3px solid var(--yellow); color: #ddca91; }
+    .evidence-status-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+    .status-option { min-height: 36px; padding: 7px; border: 1px solid #586475; color: #c2cad5; background: #080d14; cursor: pointer; font-size: 11px; }
+    .status-option:hover, .status-option[aria-pressed="true"] { border-color: var(--blue); color: white; background: #10254c; }
+    .evidence-card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .evidence-card-actions button { flex: 1 1 130px; min-height: 38px; }
+    .locked-evidence { min-height: 190px; display: grid; place-content: center; gap: 12px; color: #808b99; text-align: center; }
+    .locked-evidence .icon { width: 28px; height: 28px; margin: auto; }
+    .analysis-record { grid-column: 1 / -1; padding: 16px; border: 1px solid #697587; background: #080d14; }
+    .analysis-record h2 { margin: 0 0 6px; color: var(--blue-pale); font-size: 16px; }
+    .analysis-record > p { color: #aeb8c5; line-height: 1.55; }
+    .analysis-frames { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 14px 0; }
+    .analysis-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid #566270; background-color: #070b10; background-image: inherit; }
+    .analysis-frame::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 4px, #fff 5px 6px); opacity: .07; }
+    .analysis-frame.source-frame { background-position: 42% center; filter: saturate(.82) brightness(.92); }
+    .analysis-frame.viral-frame { background-position: 58% center; filter: saturate(.58) contrast(1.12); }
+    .analysis-frame span { position: absolute; left: 8px; bottom: 8px; padding: 4px 6px; color: white; background: #020407d9; font-size: 10px; }
+    .analysis-findings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+    .analysis-finding { padding: 10px; border-top: 2px solid var(--yellow); color: #c6ced8; background: #0d131c; line-height: 1.45; }
+    .connection-ledger { margin-top: 16px; border: 1px solid #46515e; background: #060a0f; }
+    .connection-ledger h2 { margin: 0; padding: 11px 14px; border-bottom: 1px solid #46515e; color: var(--blue-pale); font-size: 14px; background: #0b172b; }
+    .connection-ledger ul { margin: 0; padding: 8px 14px 12px 34px; color: #c3cbd6; line-height: 1.65; }
+    .connection-ledger .empty-ledger { margin: 0; padding: 14px; color: #7e8998; }
+    .case-summary { position: sticky; top: 16px; border: 1px solid #657083; background: #080d14; }
+    .case-summary-head { padding: 14px 16px; border-bottom: 1px solid #4b5665; background: #0d1a31; }
+    .case-summary-head h2 { margin: 0; color: var(--blue-pale); font-size: 16px; }
+    .case-summary-body { padding: 16px; }
+    .summary-meter { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px dotted #46515e; }
+    .summary-status { display: block; margin: 14px 0; padding: 10px; border: 1px solid #7d6230; color: var(--yellow); background: #151108; }
+    .summary-status.complete { border-color: #34734c; color: var(--green); background: #07140c; }
+    .case-summary-body p, .case-summary-body li { color: #bcc5d0; line-height: 1.55; }
+    .case-summary-body ul { padding-left: 20px; }
+    .case-summary-actions { display: grid; gap: 8px; margin-top: 16px; }
+
+    /* P08 */
+    .decision-layout { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 20px; align-items: start; }
+    .decision-intro { max-width: 820px; margin-bottom: 20px; color: #b8c2cf; line-height: 1.6; }
+    .decision-options { display: grid; gap: 10px; }
+    .decision-option { width: 100%; min-height: 118px; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 12px; padding: 15px; border: 1px solid #566272; color: #d3dae4; background: #070c12; text-align: left; cursor: pointer; }
+    .decision-option:hover, .decision-option[aria-pressed="true"] { border-color: var(--blue); background: #0d1b35; }
+    .decision-option:disabled { background: #05070a; }
+    .decision-number { display: grid; place-content: center; width: 38px; height: 38px; border: 1px solid #71809a; color: var(--blue-pale); }
+    .decision-option strong { display: block; margin-bottom: 7px; color: white; }
+    .decision-option p { margin: 0; line-height: 1.5; }
+    .decision-option small { display: block; margin-top: 8px; color: var(--yellow); line-height: 1.4; }
+    .decision-summary { border: 1px solid #657083; background: #080d14; }
+    .decision-summary h2 { margin: 0; padding: 13px 15px; border-bottom: 1px solid #4b5665; color: var(--blue-pale); background: #0d1a31; font-size: 15px; }
+    .decision-summary-body { padding: 16px; }
+    .decision-confidence { display: inline-block; margin-bottom: 12px; padding: 5px 8px; border: 1px solid #7d6230; color: var(--yellow); }
+    .decision-confidence.complete { border-color: #34734c; color: var(--green); }
+    .decision-summary-body p { color: #bcc5d0; line-height: 1.55; }
+    .decision-submit { width: 100%; margin-top: 10px; }
+    .decision-feedback { margin-top: 22px; border-top: 1px solid #657083; padding-top: 22px; }
+    .feedback-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .75fr); gap: 18px; align-items: start; }
+    .feedback-copy { border-left: 3px solid var(--blue); padding-left: 18px; }
+    .feedback-copy h2 { margin-top: 0; color: white; font-size: 22px; }
+    .feedback-copy h3 { margin: 20px 0 7px; color: var(--blue-pale); font-size: 14px; }
+    .feedback-copy p, .feedback-copy li { color: #c6ced9; line-height: 1.6; }
+    .feedback-copy ul { padding-left: 21px; }
+    .feedback-result { padding: 13px; border: 1px solid #7d6230; color: #eadba8; background: #151108; }
+    .ending-video-wrap { border: 1px solid #657083; background: #020407; }
+    .ending-video-head { padding: 10px 12px; border-bottom: 1px solid #46515e; color: var(--blue-pale); background: #0d1a31; font-size: 11px; }
+    .ending-video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+    .ending-video-note { margin: 0; padding: 11px 12px; color: #9eabba; line-height: 1.45; font-size: 11px; }
+    .feedback-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+    /* P09 */
+    .ending-screen { min-height: 100vh; display: grid; place-items: center; padding: 34px 20px; background: #000; }
+    .ending-terminal { width: min(820px, 100%); padding: 38px; border: 1px solid #3b4654; background: #020406; box-shadow: 0 0 70px #0b2a2233; }
+    .ending-terminal::before { content: "TRACE // CASE ARCHIVE"; display: block; margin-bottom: 26px; padding-bottom: 10px; border-bottom: 1px solid #314038; color: var(--green); font-size: 11px; }
+    .ending-copy { min-height: 430px; color: #e9edf2; white-space: pre-line; line-height: 1.7; }
+    .ending-copy strong { color: var(--green); }
+    .ending-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+    .ending-language { position: absolute; top: 18px; right: 18px; }
+
     /* Dialog and live status */
     .dialog-backdrop {
       position: fixed;
@@ -800,6 +896,8 @@
       .home-title { font-size: 78px; }
       .feed-layout { grid-template-columns: 1fr; }
       .trace-layout { grid-template-columns: 1fr; }
+      .board-layout, .decision-layout, .feedback-layout { grid-template-columns: 1fr; }
+      .case-summary { position: static; }
       .archive-inspection { grid-template-columns: 1fr; }
       .side-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .next-step { grid-column: 1 / -1; }
@@ -887,6 +985,15 @@
       .trace-node-detail { margin-left: 4px; }
       .trace-save { width: calc(100% - 28px); }
       .trace-evidence-status { justify-content: center; }
+      .evidence-grid { grid-template-columns: 1fr; }
+      .connection-overlay { display: none; }
+      .analysis-frames, .analysis-findings { grid-template-columns: 1fr; }
+      .evidence-status-options { grid-template-columns: 1fr 1fr; }
+      .evidence-card dl div { grid-template-columns: 74px minmax(0, 1fr); }
+      .evidence-card dd { font-size: 12px; }
+      .feedback-actions, .ending-actions { display: grid; grid-template-columns: 1fr; }
+      .ending-terminal { padding: 28px 18px; }
+      .ending-copy { min-height: 520px; font-size: 13px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -942,7 +1049,8 @@
     'use strict';
 
     const STORAGE_KEY_V1 = 'behind-the-filter.case001.v1';
-    const STORAGE_KEY = 'behind-the-filter.case001.v2';
+    const STORAGE_KEY_V2 = 'behind-the-filter.case001.v2';
+    const STORAGE_KEY = 'behind-the-filter.case001.v3';
     const SCENES = Object.freeze(['P00', 'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09']);
     const EVIDENCE = Object.freeze({
       A: { scene: 'P03', status: 'UNVERIFIED' },
@@ -952,9 +1060,16 @@
       E: { scene: 'P02', status: 'VERIFIED_SOURCE' },
       F: { scene: 'P07', status: 'ALTERED_INFERRED' }
     });
+    const CORRECT_EVIDENCE_MARKS = Object.freeze({ A: 'UNVERIFIED', B: 'VERIFIED', C: 'UNVERIFIED', D: 'VERIFIED', E: 'VERIFIED', F: 'ALTERED' });
+    const VALID_CONNECTIONS = Object.freeze(['A-B', 'A-E', 'B-F', 'C-D']);
+    const ENDING_MEDIA = Object.freeze({
+      PUBLISH: 'materials/videos/ed1.mp4',
+      VERIFY_FURTHER: 'materials/videos/ed2.mp4',
+      FLAG_MANIPULATED: 'materials/videos/ed3.mp4'
+    });
 
     const DEFAULT_STATE = Object.freeze({
-      version: 2,
+      version: 3,
       language: 'en',
       currentScene: 'P00',
       maxUnlockedScene: 'P00',
@@ -965,7 +1080,13 @@
       selectedSearchQuery: 'maya',
       visitedQueries: [],
       archiveRecordInspected: false,
-      uploaderAnalysisOpened: false
+      uploaderAnalysisOpened: false,
+      evidenceMarks: {},
+      evidenceConnections: [],
+      frameAnalysisInspected: false,
+      finalDecision: null,
+      caseClosed: false,
+      endingRevealed: false
     });
 
     const COPY = {
@@ -981,12 +1102,12 @@
         p00: {
           station: 'TRACE TERMINAL STATION 01', port: 'PORT: 8080 // SECURE',
           text: 'TRACE SYSTEM v1.0\nINITIALIZING CORE VERIFICATION MODULES...\n\nCASE 001 - SHE NEVER POSTED IT\nSTATUS: OPEN\nASSIGNED TO: FIELD ANALYST [ANALYST_07]\n\nA video is spreading. 2,803,119 people have seen it.\nThe person in the video says she never made it.\n\nYour job is to verify.',
-          enter: 'ENTER TRACE SYSTEM'
+          initialize: 'CLICK ANYWHERE TO INITIALIZE', enter: 'ENTER TRACE SYSTEM'
         },
         p01: {
           caseNumber: 'CASE 001', kicker: '2.8 MILLION VIEWS. ZERO VERIFIED SOURCES.',
           title: 'SHE NEVER\nPOSTED IT.', statNumber: '2,803,119', statLabel: 'people saw the video.',
-          desc: 'None of them asked where it came from.', start: 'START INVESTIGATION',
+          desc: 'None of them asked where it came from.', start: 'START INVESTIGATION', closed: 'CLOSED', review: 'REVIEW CASE',
           file: 'VID_2026_08_13_20_15_00.MP4', reconstruction: 'STATIC EVIDENCE PREVIEW'
         },
         p02: {
@@ -1078,6 +1199,58 @@
             { id: 'trace', time: '2026-08-14 07:42', label: 'TRACE INTERVENTION', summary: 'Aria Chen contacts TRACE and Case 001 opens.', detail: 'The verification request arrives after the amplification peak, showing how quickly harm outpaced review.' }
           ]
         },
+        p07: {
+          page: 'PAGE 06', title: 'EVIDENCE BOARD', subtitle: 'Connect sources. Mark status. Build your conclusion.', back: 'BACK TO SOURCE TRACE',
+          collected: 'Evidence collected', relations: 'Connections', mark: 'MARK STATUS', connect: 'CONNECT EVIDENCE', selected: 'SELECTED FOR CONNECTION', viewSource: 'VIEW SOURCE',
+          locked: 'EVIDENCE NOT COLLECTED', lockedHint: 'Return to the source scene to collect this record.', inspect: 'INSPECT STATIC ANALYSIS RECORD', analysisOpen: 'STATIC ANALYSIS RECORD', saveF: 'SAVE ANALYSIS AS EVIDENCE F',
+          saveFSuccess: 'Frame and audio analysis saved as Evidence F - ALTERED / INFERRED.', analysisTitle: 'TRACE FRAME / AUDIO ANALYSIS',
+          analysisIntro: 'TRACE compared a safe public archive frame with a sanitized capture of the viral file. This is a prewritten support record, not a live AI detector.',
+          sourceFrame: 'PUBLIC ARCHIVE // 00:23:17', viralFrame: 'SANITIZED CAPTURE // FULL FILE',
+          findings: ['Lighting direction on the face conflicts with the background environment.', 'The jawline boundary shows an unstable composite edge.', 'A clear edit point appears at 00:47 in the full captured file.'],
+          supportWarning: 'Supporting evidence only. These anomalies suggest alteration but cannot establish provenance without Evidence B.',
+          statusOptions: [{ value: 'VERIFIED', label: 'VERIFIED' }, { value: 'UNVERIFIED', label: 'UNVERIFIED' }, { value: 'ALTERED', label: 'ALTERED' }, { value: 'INFERRED', label: 'INFERRED' }],
+          cards: [
+            { id: 'A', title: 'VIRAL REPOST', source: 'P03 - Public Feed', sourceScene: 'P03', fields: [['Views', '2,803,119'], ['Poster', 'truthseeker_99'], ['Posted', '2026-08-13 20:15']], note: 'The video claims to show Maya Lin in a private moment. High view count does not equal credibility. Popularity is not proof.' },
+            { id: 'B', title: 'ORIGINAL LIVESTREAM CLIP', source: 'P05 - Northbridge Archive', sourceScene: 'P05', fields: [['File', 'mediafest_2024_panel_03.mp4'], ['Timestamp', '00:23:17'], ['Date', 'November 11, 2024']], note: 'This is provenance evidence. The face used in the viral file comes from a public academic event.' },
+            { id: 'C', title: 'SUSPICIOUS UPLOADER', source: 'P06 - Source Trace', sourceScene: 'P06', fields: [['Account', 'truthseeker_99'], ['Created', '2026-08-13'], ['Followers', '12 new accounts'], ['Identity', 'Unknown / Masked']], note: 'The pattern suggests coordinated inauthentic behavior, but does not identify who created the clip.' },
+            { id: 'D', title: 'REPOST TIMELINE', source: 'P06 - Source Trace', sourceScene: 'P06', fields: [['First seen', '2026-08-13 20:15'], ['First repost', '20:22'], ['Cross-platform', '23:00'], ['False scarcity', '2026-08-14']], note: 'The claim was amplified faster than it could be verified.' },
+            { id: 'E', title: 'CREATOR DENIAL', source: 'P02 - Aria Chen Mail', sourceScene: 'P02', fields: [['Statement', 'Maya denies creating or publishing the video.'], ['Report', 'Harassment report filed.']], note: 'A denial is a source statement, not proof. It must be cross-checked.', qualifier: 'SOURCE STATEMENT' },
+            { id: 'F', title: 'FRAME / AUDIO ANALYSIS', source: 'TRACE Internal Tool', sourceScene: 'P07', fields: [['Lighting', 'Mismatch'], ['Audio edit', '00:47'], ['Jawline', 'Boundary anomaly']], note: 'Supporting analysis suggests alteration but cannot prove origin by itself.', qualifier: 'INFERRED' }
+          ],
+          connectionTitle: 'EVIDENCE RELATIONSHIPS', connectionEmpty: 'No direct evidence relationships established yet.', connectionPrompt: 'Select another collected and marked card to test a direct relationship.',
+          connectionInvalidTitle: 'NO DIRECT RELATIONSHIP', connectionInvalid: 'These records may belong to the same case, but they do not directly support one another. Connect a source to a claim, statement, analysis, or propagation record.',
+          connectionNeedsMark: 'Both records must be collected and correctly marked before they can be connected.',
+          relationLabels: { 'A-B': 'Public claim compared with original source', 'A-E': 'Public claim compared with creator statement', 'B-F': 'Source provenance supported by static analysis', 'C-D': 'Uploader account linked to amplification pattern' },
+          wrongTitle: 'STATUS NOT SUPPORTED', wrongBody: 'That label does not describe what this record can establish. Separate verified source facts from unverified claims and inferred technical signals.',
+          correct: 'STATUS CONFIRMED', caseSummary: 'CASE SUMMARY', insufficient: 'INSUFFICIENT DATA', partial: 'PARTIAL ANALYSIS', complete: 'ANALYSIS COMPLETE',
+          insufficientBody: 'You need at least four correctly marked records and two direct relationships before forming a conclusion.',
+          partialBody: 'Your evidence set is substantial, but provenance is still incomplete. Evidence B and a direct source relationship are required to establish manipulation or misattribution.',
+          completeBody: 'Provenance is established. The face comes from a public Northbridge archive record and appears in a fabricated context. This does not prove who created the file or why.',
+          continueInvestigation: 'CONTINUE INVESTIGATION', proceed: 'PROCEED TO DECISION', proceedIncomplete: 'CONTINUE WITH INCOMPLETE ANALYSIS',
+          incompleteTitle: 'CONTINUE WITH INCOMPLETE ANALYSIS?', incompleteBody: 'PUBLISH and VERIFY FURTHER will remain available. FLAG AS MANIPULATED will stay locked because provenance has not been established.', incompleteConfirm: 'Continue to decision'
+        },
+        p08: {
+          page: 'PAGE 07', title: 'DECISION NODE', subtitle: 'Case 001 / Final recommendation', back: 'BACK TO EVIDENCE BOARD',
+          intro: 'You have investigated. You have connected evidence. Now decide what TRACE will publish. You are choosing what information enters the world.',
+          select: 'SELECT YOUR RECOMMENDATION', reviewTitle: 'DECISION PREVIEW', noSelection: 'Select a recommendation to preview its evidentiary basis and likely impact.',
+          confidence: { insufficient: 'INSUFFICIENT', partial: 'PARTIAL', complete: 'PROVENANCE ESTABLISHED' }, submit: 'SUBMIT RECOMMENDATION', review: 'REVIEW OTHER RESPONSES', closeCase: 'CLOSE CASE',
+          flagLocked: 'Requires an ANALYSIS COMPLETE result from the Evidence Board.', recorded: 'DECISION RECORDED', immediate: 'IMMEDIATE IMPACT', later48: '48 HOURS LATER', later72: '72 HOURS LATER', result: 'RESULT',
+          choices: [
+            { id: 'PUBLISH', title: 'PUBLISH', statement: 'The video appears authentic. Maya Lin\'s denial is unverified.', caution: 'Publishing now would amplify an unverified claim.' },
+            { id: 'VERIFY_FURTHER', title: 'VERIFY FURTHER', statement: 'We need more time to trace the original livestream and confirm the upload chain.', caution: 'This acknowledges uncertainty but does not counter the false narrative.' },
+            { id: 'FLAG_MANIPULATED', title: 'FLAG AS MANIPULATED', statement: 'The face comes from a public Northbridge livestream. The uploader is inauthentic. The public claim is false.', caution: 'This conclusion requires established provenance.' }
+          ],
+          feedback: {
+            PUBLISH: { statement: 'TRACE published: "Video appears authentic."', immediate: ['47 news outlets reposted within 2 hours.', 'Maya Lin trended globally for 8 hours.', 'She received 12,000 harassment messages in 24 hours.', 'Northbridge issued a generic "we are aware" statement.', 'truthseeker_99 deleted the account and created another with the same video.'], laterLabel: '48 HOURS LATER', later: ['An independent forensic analyst traced the original livestream.', 'TRACE\'s early publication was cited as evidence by outlets that never checked the source.', 'Maya Lin has not posted online since.'], result: 'You amplified harm before verifying origin. Speed is not a substitute for provenance.', reflection: 'Every click can amplify harm. Every verification can interrupt it.' },
+            VERIFY_FURTHER: { statement: 'TRACE issued a holding statement: "Investigation ongoing."', immediate: ['The video continued to spread. TRACE did not stop it.', 'Maya Lin received 3,400 messages asking "Is it true?"', 'Some users interpreted silence as confirmation.', 'The false narrative gained credibility through repetition.'], laterLabel: '72 HOURS LATER', later: ['TRACE completed the analysis: Manipulated / Misattributed.', '8.2 million people saw the original claim.', 'Only 890,000 saw the correction.', 'The correction was buried by platform algorithms.'], result: 'You chose caution, but caution without speed allowed the false claim to solidify.', reflection: 'Uncertainty is responsible. In a networked world, silence is also a signal.' },
+            FLAG_MANIPULATED: { statement: 'TRACE published a verified statement: "The video attributed to Maya Lin uses facial footage from a public Northbridge University livestream (November 11, 2024). The uploader account (truthseeker_99) exhibits coordinated inauthentic behavior. The claim is false."', immediate: ['12 news outlets picked up the TRACE analysis.', '3 platforms added a Manipulated Media label.', 'Maya Lin\'s harassment messages dropped by 60%.', 'truthseeker_99\'s new account was suspended.'], laterLabel: '72 HOURS LATER', later: ['Northbridge confirmed the livestream archive.', 'Aria Chen shared the TRACE report in student networks.', 'The false video still circulates privately, but the public narrative shifted.', 'Maya Lin posted: "Thank you to everyone who checked before sharing."'], result: 'You interrupted the amplification chain. Verification reduced harm; it did not eliminate it.', reflection: 'This is Media and Information Literacy in practice. Not a quiz. A choice. A consequence.' }
+          },
+          videoTitle: 'BRANCH CONSEQUENCE RECORD', videoNote: 'Optional visual summary. Use the player controls to watch with sound, or continue without playing it.', mediaUnavailable: 'The optional video could not be loaded. The complete outcome remains available in text.'
+        },
+        p09: {
+          intro: 'CASE 001 - CLOSED\n\nMaya Lin\'s face was real.\nThe context was not.\n\n2,803,119 people saw a video.\nHow many checked where it came from?\n\nThis was a fictional case.\nThe patterns are not.\n\nAI manipulation. Coordinated amplification.\nFalse scarcity. Citation loops.\nThese happen every day.\n\nYou are not just a viewer.\nYou are a node in the network.\n\nEvery click can amplify harm.\nEvery verification can interrupt it.\n\nVERIFY BEFORE YOU AMPLIFY.',
+          playPart: 'PLAY YOUR PART', final: 'PLAY YOUR PART.\n\nMedia and Information Literacy is not about knowing.\nIt is about choosing.\n\nBehind the Filter - Case 001\nA fictional narrative for MIL learning.', returnTrace: 'RETURN TO TRACE'
+        },
         modal: {
           videoTitle: 'CONTENT VERIFICATION NOTICE', videoBody: 'TRACE does not display unverified intimate media. The preview remains blurred and shows only a side profile.\n\nA familiar face is not proof of an authentic context.',
           accountTitle: 'UPLOADER SNAPSHOT', accountBody: 'Account: truthseeker_99\nCreated: 2026-08-13, 27 minutes before posting\nFollowers: 12\nPosts: 1\nIdentity: Unknown\n\nA new account is a warning sign, not proof. Its claims still require verification.',
@@ -1101,12 +1274,12 @@
         p00: {
           station: 'TRACE 终端工作站 01', port: '端口：8080 // 安全连接',
           text: 'TRACE 系统 v1.0\n正在初始化核心核查模块……\n\n案件 001 - 她从未发布过\n状态：开启\n指派给：现场分析员 [ANALYST_07]\n\n一段视频正在传播。2,803,119 人看过它。\n视频中的人说，她从未制作过它。\n\n你的任务是核实。',
-          enter: '进入 TRACE 系统'
+          initialize: '点击任意位置初始化', enter: '进入 TRACE 系统'
         },
         p01: {
           caseNumber: '案件 001', kicker: '280 万次观看。零个已核实来源。',
           title: '她从未\n发布过。', statNumber: '2,803,119', statLabel: '人看过这段视频。',
-          desc: '但没有一个人问过它来自哪里。', start: '开始调查',
+          desc: '但没有一个人问过它来自哪里。', start: '开始调查', closed: '已结案', review: '回顾案件',
           file: '视频_2026_08_13_20_15_00.MP4', reconstruction: '静态证据预览'
         },
         p02: {
@@ -1198,6 +1371,58 @@
             { id: 'trace', time: '2026-08-14 07:42', label: 'TRACE 介入', summary: 'Aria Chen 联系 TRACE，案件 001 开启。', detail: '核查请求在传播放大高峰后才到达，显示伤害扩散的速度远超审核。' }
           ]
         },
+        p07: {
+          page: '第 06 页', title: '证据板', subtitle: '连接来源。标记状态。建立你的结论。', back: '返回信源追踪',
+          collected: '已收集证据', relations: '已建立关系', mark: '标记状态', connect: '连接证据', selected: '已选为连接起点', viewSource: '查看来源',
+          locked: '尚未收集该证据', lockedHint: '返回对应来源页面收集这条记录。', inspect: '检查静态分析记录', analysisOpen: '静态分析记录', saveF: '将分析保存为证据 F',
+          saveFSuccess: '画面与音频分析已保存为证据 F - 已修改 / 推断。', analysisTitle: 'TRACE 画面 / 音频分析',
+          analysisIntro: 'TRACE 将安全的公开档案画面与经过安全处理的疯传文件截图进行比对。这是预写的辅助记录，不是实时 AI 检测器。',
+          sourceFrame: '公开档案 // 00:23:17', viralFrame: '安全截图 // 完整文件',
+          findings: ['脸部光线方向与背景环境不一致。', '下颌线边界出现不稳定的合成痕迹。', '完整捕获文件在 00:47 处出现明显编辑点。'],
+          supportWarning: '这仅是辅助证据。异常暗示内容经过修改，但没有证据 B 就无法建立出处。',
+          statusOptions: [{ value: 'VERIFIED', label: '已核实' }, { value: 'UNVERIFIED', label: '未核实' }, { value: 'ALTERED', label: '已修改' }, { value: 'INFERRED', label: '推断' }],
+          cards: [
+            { id: 'A', title: '疯传转载', source: 'P03 - Public Feed', sourceScene: 'P03', fields: [['观看', '2,803,119'], ['发帖人', 'truthseeker_99'], ['发布时间', '2026-08-13 20:15']], note: '视频声称拍到了 Maya Lin 的私密时刻。高观看量不等于可信度，流行不是证据。' },
+            { id: 'B', title: '原始直播片段', source: 'P05 - Northbridge 档案', sourceScene: 'P05', fields: [['文件', 'mediafest_2024_panel_03.mp4'], ['时间戳', '00:23:17'], ['日期', '2024年11月11日']], note: '这是出处证据。疯传文件中的脸部来自一场公开学术活动。' },
+            { id: 'C', title: '可疑上传者', source: 'P06 - 信源追踪', sourceScene: 'P06', fields: [['账号', 'truthseeker_99'], ['创建', '2026-08-13'], ['粉丝', '12 个新账号'], ['身份', '未知 / 隐藏']], note: '该模式暗示协同不真实行为，但不能确认是谁制作了片段。' },
+            { id: 'D', title: '转载时间线', source: 'P06 - 信源追踪', sourceScene: 'P06', fields: [['首次出现', '2026-08-13 20:15'], ['首次转载', '20:22'], ['跨平台', '23:00'], ['虚假稀缺', '2026-08-14']], note: '该说法被放大的速度超过了核实速度。' },
+            { id: 'E', title: '创作者否认', source: 'P02 - Aria Chen 邮件', sourceScene: 'P02', fields: [['声明', 'Maya 否认制作或发布该视频。'], ['报告', '已提交骚扰报告。']], note: '否认是一项来源声明，不是结论，必须进行交叉核对。', qualifier: '来源声明' },
+            { id: 'F', title: '画面 / 音频分析', source: 'TRACE 内部工具', sourceScene: 'P07', fields: [['光线', '不匹配'], ['音频编辑', '00:47'], ['下颌线', '边界异常']], note: '辅助分析暗示内容经过修改，但本身无法证明出处。', qualifier: '推断' }
+          ],
+          connectionTitle: '证据关系', connectionEmpty: '尚未建立直接证据关系。', connectionPrompt: '再选择一张已收集且已正确标记的卡片，检验它们是否存在直接关系。',
+          connectionInvalidTitle: '没有直接证据关系', connectionInvalid: '这些记录可能属于同一案件，但不能直接相互支持。请连接来源与说法、声明、分析或传播记录。',
+          connectionNeedsMark: '两条记录都必须已收集并正确标记，才能建立关系。',
+          relationLabels: { 'A-B': '公开说法与原始来源对照', 'A-E': '公开说法与创作者声明对照', 'B-F': '来源出处由静态分析辅助支持', 'C-D': '上传者账号与传播放大模式相连' },
+          wrongTitle: '该状态缺乏支持', wrongBody: '这个标签不能准确描述该记录能够证明什么。请区分已核实的来源事实、未核实的说法和推断性技术信号。',
+          correct: '状态已确认', caseSummary: '案件摘要', insufficient: '数据不足', partial: '部分分析', complete: '分析完成',
+          insufficientBody: '形成结论前，你至少需要正确标记四条记录并建立两条直接关系。',
+          partialBody: '证据数量已经足够，但出处仍不完整。必须拥有证据 B 和一条直接来源关系，才能确认篡改或错误归属。',
+          completeBody: '出处已建立。脸部来自 Northbridge 的公开档案，却被放入虚构语境。这仍不能证明是谁制作了文件或其动机。',
+          continueInvestigation: '继续调查', proceed: '前往最终判断', proceedIncomplete: '带着不完整分析继续',
+          incompleteTitle: '带着不完整分析继续？', incompleteBody: '你仍可选择“发布”或“进一步核实”。由于尚未建立出处，“标记为篡改”将保持锁定。', incompleteConfirm: '继续前往判断'
+        },
+        p08: {
+          page: '第 07 页', title: '最终判断', subtitle: '案件 001 / 最终建议', back: '返回证据板',
+          intro: '你已经调查，也已经连接证据。现在，你必须决定 TRACE 将发布什么。你正在选择什么信息会进入世界。',
+          select: '选择你的建议', reviewTitle: '决策预览', noSelection: '选择一项建议，预览它的证据基础和可能影响。',
+          confidence: { insufficient: '证据不足', partial: '部分分析', complete: '出处已建立' }, submit: '提交建议', review: '查看其他选择', closeCase: '关闭案件',
+          flagLocked: '需要在证据板达到“分析完成”。', recorded: '决策已记录', immediate: '即时影响', later48: '48 小时后', later72: '72 小时后', result: '结果',
+          choices: [
+            { id: 'PUBLISH', title: '发布', statement: '视频看起来是真实的。Maya Lin 的否认尚未核实。', caution: '现在发布将放大未经核实的说法。' },
+            { id: 'VERIFY_FURTHER', title: '进一步核实', statement: '我们需要更多时间追溯原始直播并确认上传链条。', caution: '这承认了不确定性，但也没有反驳虚假叙事。' },
+            { id: 'FLAG_MANIPULATED', title: '标记为篡改', statement: '脸部来自 Northbridge 的公开直播。上传者账号不真实。公开说法是假的。', caution: '该结论必须建立在完整出处证据上。' }
+          ],
+          feedback: {
+            PUBLISH: { statement: 'TRACE 发布声明：“视频看起来是真实的。”', immediate: ['47 家新闻机构在 2 小时内转载。', 'Maya Lin 的名字在全球趋势榜停留 8 小时。', '她在 24 小时内收到 12,000 条骚扰信息。', 'Northbridge 发布了泛泛的“我们已知晓”声明。', 'truthseeker_99 删除账号并用同一视频创建新账号。'], laterLabel: '48 小时后', later: ['一位独立取证分析师追溯到原始直播。', '从未核查来源的机构把 TRACE 的过早发布引用为“证据”。', 'Maya Lin 此后再未在网上发布内容。'], result: '你在核实出处之前放大了伤害。速度不能替代出处。', reflection: '每一次点击都可能放大伤害。每一次核实都可能中断伤害。' },
+            VERIFY_FURTHER: { statement: 'TRACE 发布暂缓声明：“调查进行中。”', immediate: ['视频继续传播，TRACE 未能阻止它。', 'Maya Lin 收到 3,400 条询问“这是真的吗？”的信息。', '一些用户将沉默解读为确认。', '虚假叙事通过重复获得可信度。'], laterLabel: '72 小时后', later: ['TRACE 完成分析：篡改 / 错误归属。', '820 万人看到了原始说法。', '只有 89 万人看到了更正。', '更正被平台算法淹没。'], result: '你选择了谨慎，但缺少速度的谨慎让虚假说法得以固化。', reflection: '不确定性是负责任的立场。但在网络世界中，沉默也是一种信号。' },
+            FLAG_MANIPULATED: { statement: 'TRACE 发布经核实的声明：“归因于 Maya Lin 的视频使用了她在 Northbridge 大学公开直播（2024年11月11日）中的脸部画面。上传者账号（truthseeker_99）表现出协同不真实行为。该说法是假的。”', immediate: ['12 家新闻机构采纳 TRACE 的分析。', '3 个平台添加“篡改媒体”标签。', 'Maya Lin 收到的骚扰信息减少 60%。', 'truthseeker_99 的新账号被暂停。'], laterLabel: '72 小时后', later: ['Northbridge 确认直播档案。', 'Aria Chen 在学生网络中分享 TRACE 报告。', '虚假视频仍在私人群组传播，但公开叙事已经转变。', 'Maya Lin 发帖：“感谢每一位在分享前核实的人。”'], result: '你中断了放大链条。核实减少了伤害，但没有完全消除它。', reflection: '这就是媒介与信息素养的实践。不是测验，而是选择与后果。' }
+          },
+          videoTitle: '分支后果记录', videoNote: '可选视觉摘要。使用播放器控件有声观看，也可以不播放并继续。', mediaUnavailable: '可选视频无法加载。完整结局仍可通过文字查看。'
+        },
+        p09: {
+          intro: '案件 001 - 已结案\n\nMaya Lin 的脸是真实的。\n语境不是。\n\n2,803,119 人看到了一段视频。\n有多少人核实了它来自哪里？\n\n这是一个虚构的案件。\n这些模式不是。\n\nAI 篡改。协同放大。\n虚假稀缺。引用循环。\n这些每天都在发生。\n\n你不只是一个观众。\n你是网络中的一个节点。\n\n每一次点击都可能放大伤害。\n每一次核实都可能中断伤害。\n\n转发前核实。',
+          playPart: '尽你的一份力', final: '尽你的一份力。\n\n媒介与信息素养不是关于知道。\n它是关于选择。\n\n滤镜之后 - 案件 001\n虚构叙事，用于媒介与信息素养教育。', returnTrace: '返回 TRACE'
+        },
         modal: {
           videoTitle: '内容核查提示', videoBody: 'TRACE 不展示未经核实的私密影像。预览保持模糊，仅显示侧脸。\n\n熟悉的脸并不能证明语境真实。',
           accountTitle: '上传者快照', accountBody: '账号：truthseeker_99\n创建：2026-08-13，发帖前 27 分钟\n粉丝：12\n帖子：1\n身份：未知\n\n新账号是警示信号，不是证据。它的说法仍需核实。',
@@ -1212,11 +1437,15 @@
     };
 
     let state = loadState();
-    if (!localStorage.getItem(STORAGE_KEY) && localStorage.getItem(STORAGE_KEY_V1)) saveState();
+    if (!localStorage.getItem(STORAGE_KEY) && (localStorage.getItem(STORAGE_KEY_V2) || localStorage.getItem(STORAGE_KEY_V1))) saveState();
     let activeModal = null;
     let lastFocus = null;
     let replyOpen = false;
     let expandedTraceNode = 'first-seen';
+    let connectionStart = null;
+    let selectedDecision = state.finalDecision;
+    let endingMediaUnavailable = false;
+    let connectionFrame = null;
     let renderToken = 0;
     let bootTimer = null;
     let toastTimer = null;
@@ -1238,22 +1467,30 @@
 
     function loadState() {
       try {
-        const rawV2 = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const rawV3 = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const rawV2 = JSON.parse(localStorage.getItem(STORAGE_KEY_V2));
         const rawV1 = JSON.parse(localStorage.getItem(STORAGE_KEY_V1));
-        const raw = rawV2?.version === 2 ? rawV2 : rawV1?.version === 1 ? rawV1 : null;
+        const raw = rawV3?.version === 3 ? rawV3 : rawV2?.version === 2 ? rawV2 : rawV1?.version === 1 ? rawV1 : null;
         if (!raw) return { ...DEFAULT_STATE };
         const language = raw.language === 'zh' ? 'zh' : 'en';
-        const currentScene = SCENES.includes(raw.currentScene) && sceneIndex(raw.currentScene) <= 6 ? raw.currentScene : 'P00';
+        const currentScene = SCENES.includes(raw.currentScene) ? raw.currentScene : 'P00';
         const maxUnlockedScene = SCENES.includes(raw.maxUnlockedScene) ? raw.maxUnlockedScene : 'P00';
         const evidence = Array.isArray(raw.evidence) ? [...new Set(raw.evidence.filter(id => Object.hasOwn(EVIDENCE, id)))] : [];
         const selectedSearchQuery = ['maya', 'uploader', 'festival', 'headline', 'police'].includes(raw.selectedSearchQuery) ? raw.selectedSearchQuery : 'maya';
         const visitedQueries = Array.isArray(raw.visitedQueries)
           ? [...new Set(raw.visitedQueries.filter(id => ['maya', 'uploader', 'festival', 'headline', 'police'].includes(id)))]
           : [];
+        const evidenceMarks = raw.evidenceMarks && typeof raw.evidenceMarks === 'object'
+          ? Object.fromEntries(Object.entries(raw.evidenceMarks).filter(([id, mark]) => evidence.includes(id) && ['VERIFIED', 'UNVERIFIED', 'ALTERED', 'INFERRED'].includes(mark)))
+          : {};
+        const evidenceConnections = Array.isArray(raw.evidenceConnections)
+          ? [...new Set(raw.evidenceConnections.filter(id => VALID_CONNECTIONS.includes(id)))]
+          : [];
+        const finalDecision = Object.hasOwn(ENDING_MEDIA, raw.finalDecision) ? raw.finalDecision : null;
         return {
           ...DEFAULT_STATE,
           ...raw,
-          version: 2,
+          version: 3,
           language,
           currentScene,
           maxUnlockedScene,
@@ -1264,7 +1501,13 @@
           selectedSearchQuery,
           visitedQueries,
           archiveRecordInspected: Boolean(raw.archiveRecordInspected),
-          uploaderAnalysisOpened: Boolean(raw.uploaderAnalysisOpened)
+          uploaderAnalysisOpened: Boolean(raw.uploaderAnalysisOpened),
+          evidenceMarks,
+          evidenceConnections,
+          frameAnalysisInspected: Boolean(raw.frameAnalysisInspected),
+          finalDecision,
+          caseClosed: Boolean(raw.caseClosed),
+          endingRevealed: Boolean(raw.endingRevealed)
         };
       } catch (error) {
         return { ...DEFAULT_STATE };
@@ -1288,6 +1531,35 @@
       state.evidence = [...state.evidence, id];
       saveState();
       return true;
+    }
+
+    function hasCorrectMark(id) {
+      return hasEvidence(id) && state.evidenceMarks[id] === CORRECT_EVIDENCE_MARKS[id];
+    }
+
+    function connectionId(first, second) {
+      return [first, second].sort().join('-');
+    }
+
+    function getAnalysisStatus() {
+      const correctCount = Object.keys(CORRECT_EVIDENCE_MARKS).filter(hasCorrectMark).length;
+      const connectionCount = state.evidenceConnections.length;
+      const hasProvenance = state.evidenceConnections.some(id => id === 'A-B' || id === 'B-F');
+      const provenanceReady = hasCorrectMark('B') && hasProvenance;
+      const level = correctCount >= 4 && connectionCount >= 2 && provenanceReady
+        ? 'complete'
+        : correctCount >= 4 && connectionCount >= 2
+          ? 'partial'
+          : 'insufficient';
+      return { level, correctCount, connectionCount, hasProvenance, provenanceReady };
+    }
+
+    function suggestedInvestigationScene() {
+      if (!hasEvidence('B')) return 'P04';
+      if (!hasEvidence('A')) return 'P03';
+      if (!hasEvidence('E')) return 'P02';
+      if (!hasEvidence('C') || !hasEvidence('D')) return 'P06';
+      return 'P07';
     }
 
     function copy() { return COPY[state.language]; }
@@ -1364,13 +1636,15 @@
         case 'SAVE_EVIDENCE': {
           if (payload.id === 'B' && !state.archiveRecordInspected) return;
           if (payload.id === 'C' && !state.uploaderAnalysisOpened) return;
+          if (payload.id === 'F' && !state.frameAnalysisInspected) return;
           const added = addEvidence(payload.id);
           const messages = {
             A: copy().p03.evidenceSaved,
             B: copy().p05.evidenceSaved,
             C: copy().p06.accountSaved,
             D: copy().p06.timelineSaved,
-            E: copy().p02.evidenceSaved
+            E: copy().p02.evidenceSaved,
+            F: copy().p07.saveFSuccess
           };
           const message = messages[payload.id] || copy().modal.evidenceTitle;
           if (payload.id === 'B') unlockScene('P06');
@@ -1458,14 +1732,140 @@
           break;
         case 'UNLOCK_BOARD': {
           unlockScene('P07');
+          state.currentScene = 'P07';
           saveState();
-          const complete = hasEvidence('C') && hasEvidence('D');
-          openModal({
-            title: copy().p06.checkpointTitle,
-            body: complete ? copy().p06.checkpointComplete : copy().p06.checkpointPartial
-          });
+          render(true);
+          announce(hasEvidence('C') && hasEvidence('D') ? copy().p06.checkpointComplete : copy().p06.checkpointPartial);
           break;
         }
+        case 'MARK_EVIDENCE': {
+          const id = payload.id;
+          if (!hasEvidence(id) || !CORRECT_EVIDENCE_MARKS[id]) return;
+          if (payload.mark !== CORRECT_EVIDENCE_MARKS[id]) {
+            openModal({ title: copy().p07.wrongTitle, body: copy().p07.wrongBody });
+            return;
+          }
+          state.evidenceMarks = { ...state.evidenceMarks, [id]: payload.mark };
+          saveState();
+          render(false);
+          announce(`${copy().p07.correct}: ${id}`);
+          break;
+        }
+        case 'CONNECT_EVIDENCE': {
+          const id = payload.id;
+          if (!hasCorrectMark(id)) {
+            openModal({ title: copy().p07.connectionInvalidTitle, body: copy().p07.connectionNeedsMark });
+            return;
+          }
+          if (!connectionStart) {
+            connectionStart = id;
+            render(false);
+            announce(copy().p07.connectionPrompt);
+            return;
+          }
+          if (connectionStart === id) {
+            connectionStart = null;
+            render(false);
+            return;
+          }
+          const relation = connectionId(connectionStart, id);
+          connectionStart = null;
+          if (!VALID_CONNECTIONS.includes(relation)) {
+            render(false);
+            openModal({ title: copy().p07.connectionInvalidTitle, body: copy().p07.connectionInvalid });
+            return;
+          }
+          if (!state.evidenceConnections.includes(relation)) state.evidenceConnections = [...state.evidenceConnections, relation];
+          saveState();
+          render(false);
+          announce(copy().p07.relationLabels[relation]);
+          break;
+        }
+        case 'INSPECT_FRAME_ANALYSIS':
+          state.frameAnalysisInspected = true;
+          saveState();
+          render(false);
+          requestAnimationFrame(() => document.getElementById('analysis-record')?.focus());
+          break;
+        case 'CONTINUE_INVESTIGATION': {
+          const target = suggestedInvestigationScene();
+          state.currentScene = target;
+          saveState();
+          render(true);
+          break;
+        }
+        case 'OPEN_DECISION':
+          if (getAnalysisStatus().level !== 'complete') {
+            openModal({
+              title: copy().p07.incompleteTitle,
+              body: copy().p07.incompleteBody,
+              actions: [
+                { label: copy().global.cancel, action: 'CLOSE_MODAL', className: 'secondary-button' },
+                { label: copy().p07.incompleteConfirm, action: 'CONFIRM_INCOMPLETE_DECISION', className: 'primary-button' }
+              ]
+            });
+            return;
+          }
+          unlockScene('P08');
+          state.currentScene = 'P08';
+          saveState();
+          render(true);
+          break;
+        case 'CONFIRM_INCOMPLETE_DECISION':
+          unlockScene('P08');
+          state.currentScene = 'P08';
+          closeModal(false);
+          saveState();
+          render(true);
+          break;
+        case 'SELECT_DECISION':
+          if (!Object.hasOwn(ENDING_MEDIA, payload.decision)) return;
+          if (payload.decision === 'FLAG_MANIPULATED' && getAnalysisStatus().level !== 'complete') return;
+          selectedDecision = payload.decision;
+          endingMediaUnavailable = false;
+          render(false);
+          requestAnimationFrame(() => document.getElementById('decision-preview')?.focus());
+          break;
+        case 'SUBMIT_DECISION':
+          if (!Object.hasOwn(ENDING_MEDIA, selectedDecision)) return;
+          if (selectedDecision === 'FLAG_MANIPULATED' && getAnalysisStatus().level !== 'complete') return;
+          state.finalDecision = selectedDecision;
+          saveState();
+          render(false);
+          requestAnimationFrame(() => document.getElementById('decision-feedback')?.focus());
+          break;
+        case 'RESELECT_DECISION':
+          selectedDecision = null;
+          endingMediaUnavailable = false;
+          render(false);
+          requestAnimationFrame(() => document.querySelector('[data-action="SELECT_DECISION"]')?.focus());
+          break;
+        case 'CLOSE_CASE':
+          if (!state.finalDecision) return;
+          unlockScene('P09');
+          state.currentScene = 'P09';
+          state.caseClosed = true;
+          state.endingRevealed = false;
+          saveState();
+          render(true);
+          break;
+        case 'REVEAL_ENDING':
+          state.endingRevealed = true;
+          saveState();
+          render(false);
+          requestAnimationFrame(() => document.getElementById('ending-final')?.focus());
+          break;
+        case 'RETURN_TRACE':
+          state.currentScene = 'P01';
+          state.openingSeen = true;
+          saveState();
+          render(true);
+          break;
+        case 'REVIEW_CASE':
+          state.currentScene = 'P07';
+          saveState();
+          render(true);
+          break;
         case 'OPEN_RESET':
           openModal({
             title: copy().modal.resetTitle,
@@ -1478,10 +1878,14 @@
           break;
         case 'CONFIRM_RESET':
           localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_KEY_V2);
           localStorage.removeItem(STORAGE_KEY_V1);
           state = { ...DEFAULT_STATE };
           replyOpen = false;
           expandedTraceNode = 'first-seen';
+          connectionStart = null;
+          selectedDecision = null;
+          endingMediaUnavailable = false;
           closeModal(false);
           render(true);
           break;
@@ -1594,7 +1998,7 @@
           <div class="footer-cell"><span class="footer-label">${escapeHTML(g.system)}</span><span class="footer-small">© 2026 TRACE LAB<br>${escapeHTML(g.fictional)}</span></div>
           <div class="footer-cell"><span class="footer-label">${escapeHTML(g.objective)}</span>${escapeHTML(g.objectiveText)}</div>
           <div class="footer-cell"><span class="footer-label">${escapeHTML(g.approach)}</span>${escapeHTML(g.approachText)}</div>
-          <div class="footer-cell"><span class="footer-label">${escapeHTML(g.analyst)}</span>${escapeHTML(g.caseActive)}</div>
+          <div class="footer-cell"><span class="footer-label">${escapeHTML(g.analyst)}</span>${escapeHTML(state.caseClosed ? copy().p01.closed : g.caseActive)}</div>
         </footer>`;
     }
 
@@ -1623,12 +2027,12 @@
           ${renderHeader()}
           <section class="home-main" aria-labelledby="scene-title">
             <div class="home-copy">
-              <span class="case-stamp">${escapeHTML(t.p01.caseNumber)}</span>
+              <span class="case-stamp">${escapeHTML(t.p01.caseNumber)}${state.caseClosed ? ` // ${escapeHTML(t.p01.closed)}` : ''}</span>
               <p class="home-kicker">${escapeHTML(t.p01.kicker)}</p>
               <h1 id="scene-title" class="home-title" tabindex="-1">${escapeHTML(t.p01.title).replace(/\n/g, '<br>')}</h1>
               <p class="home-stat"><strong>${escapeHTML(t.p01.statNumber)}</strong> ${escapeHTML(t.p01.statLabel)}</p>
               <p class="home-desc">${escapeHTML(t.p01.desc)}</p>
-              <button class="primary-button" type="button" data-action="START_CASE">${escapeHTML(t.p01.start)} ${icon('chevron')}</button>
+              <button class="primary-button" type="button" data-action="${state.caseClosed ? 'REVIEW_CASE' : 'START_CASE'}">${escapeHTML(state.caseClosed ? t.p01.review : t.p01.start)} ${icon('chevron')}</button>
             </div>
             <div class="retro-player">
               <div class="player-titlebar"><span>${escapeHTML(t.p01.file)}</span><span>00:00:00:00</span></div>
@@ -1951,13 +2355,221 @@
         </div>`;
     }
 
-    const RENDERERS = { P00: renderP00, P01: renderP01, P02: renderP02, P03: renderP03, P04: renderP04, P05: renderP05, P06: renderP06 };
+    function renderEvidenceCard(card) {
+      const t = copy();
+      const acquired = hasEvidence(card.id);
+      const mark = state.evidenceMarks[card.id];
+      const marked = hasCorrectMark(card.id);
+      const statusOption = t.p07.statusOptions.find(option => option.value === mark);
+      const statusLabel = marked
+        ? `${statusOption?.label || mark}${card.qualifier ? ` / ${card.qualifier}` : ''}`
+        : t.p07.mark;
+      const selected = connectionStart === card.id;
+      if (!acquired) {
+        const recovery = card.id === 'F'
+          ? `<button class="secondary-button" type="button" data-action="INSPECT_FRAME_ANALYSIS">${icon('search')} ${escapeHTML(t.p07.inspect)}</button>`
+          : `<button class="secondary-button" type="button" data-action="NAVIGATE" data-scene="${escapeHTML(card.sourceScene)}">${icon('back')} ${escapeHTML(t.p07.lockedHint)}</button>`;
+        return `<article id="evidence-card-${card.id}" class="evidence-card is-locked" data-evidence-card="${card.id}">
+          <header class="evidence-card-head"><h2><span class="evidence-id">${card.id}.</span> ${escapeHTML(card.title)}</h2><span class="evidence-state">${escapeHTML(t.p07.locked)}</span></header>
+          <div class="evidence-card-body locked-evidence">${icon('alert')}<strong>${escapeHTML(t.p07.locked)}</strong>${recovery}</div>
+        </article>`;
+      }
+      return `<article id="evidence-card-${card.id}" class="evidence-card ${selected ? 'is-connect-selected' : ''}" data-evidence-card="${card.id}">
+        <header class="evidence-card-head"><h2><span class="evidence-id">${card.id}.</span> ${escapeHTML(card.title)}</h2><span class="evidence-state ${marked ? 'confirmed' : ''}">${escapeHTML(statusLabel)}</span></header>
+        <div class="evidence-card-body">
+          <p class="evidence-source">${escapeHTML(card.source)}</p>
+          <dl>${card.fields.map(([label, value]) => `<div><dt>${escapeHTML(label)}</dt><dd>${escapeHTML(value)}</dd></div>`).join('')}</dl>
+          <p class="evidence-note ${card.id === 'E' || card.id === 'F' ? 'evidence-warning' : ''}">${escapeHTML(card.note)}</p>
+          <div class="evidence-status-options" aria-label="${escapeHTML(t.p07.mark)}">
+            ${t.p07.statusOptions.map(option => `<button class="status-option" type="button" data-action="MARK_EVIDENCE" data-evidence="${card.id}" data-mark="${option.value}" aria-pressed="${mark === option.value}">${escapeHTML(option.label)}</button>`).join('')}
+          </div>
+          <div class="evidence-card-actions">
+            ${card.sourceScene !== 'P07' ? `<button class="text-button" type="button" data-action="NAVIGATE" data-scene="${escapeHTML(card.sourceScene)}">${icon('back')} ${escapeHTML(t.p07.viewSource)}</button>` : ''}
+            <button class="secondary-button" type="button" data-action="CONNECT_EVIDENCE" data-evidence="${card.id}" ${marked ? '' : 'disabled'} aria-pressed="${selected}">${icon(selected ? 'check' : 'share')} ${escapeHTML(selected ? t.p07.selected : t.p07.connect)}</button>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderP07() {
+      const t = copy();
+      const analysis = getAnalysisStatus();
+      const statusLabel = t.p07[analysis.level];
+      const statusBody = t.p07[`${analysis.level}Body`];
+      const cards = t.p07.cards.map(renderEvidenceCard).join('');
+      const relationshipItems = state.evidenceConnections.map(id => `<li data-relation="${id}"><strong>${escapeHTML(id)}</strong> - ${escapeHTML(t.p07.relationLabels[id])}</li>`).join('');
+      const frameRecord = state.frameAnalysisInspected ? `
+        <section id="analysis-record" class="analysis-record" tabindex="-1" aria-labelledby="analysis-title">
+          <h2 id="analysis-title">${escapeHTML(t.p07.analysisTitle)}</h2>
+          <p>${escapeHTML(t.p07.analysisIntro)}</p>
+          <div class="analysis-frames" aria-label="${escapeHTML(t.p07.analysisTitle)}">
+            <div class="analysis-frame viral-still source-frame"><span>${escapeHTML(t.p07.sourceFrame)}</span></div>
+            <div class="analysis-frame viral-still viral-frame"><span>${escapeHTML(t.p07.viralFrame)}</span></div>
+          </div>
+          <div class="analysis-findings">${t.p07.findings.map(item => `<div class="analysis-finding">${escapeHTML(item)}</div>`).join('')}</div>
+          <p class="evidence-warning">${escapeHTML(t.p07.supportWarning)}</p>
+          <button class="primary-button" type="button" data-action="SAVE_EVIDENCE" data-evidence="F">${icon(hasEvidence('F') ? 'check' : 'save')} ${escapeHTML(t.p07.saveF)}</button>
+        </section>` : '';
+      return `
+        <div class="shell">
+          ${renderHeader()}
+          ${renderPageMeta(t.p07.page, 'P06', t.p07.back)}
+          <main class="page-main" aria-labelledby="scene-title">
+            <h1 id="scene-title" class="scene-heading" tabindex="-1">${escapeHTML(t.p07.title)}</h1>
+            <p class="scene-subtitle">${escapeHTML(t.p07.subtitle)}</p>
+            <hr class="scene-rule">
+            <div class="board-layout">
+              <div>
+                <section class="evidence-board-stage" aria-label="${escapeHTML(t.p07.title)}">
+                  <svg id="connection-overlay" class="connection-overlay" aria-hidden="true"></svg>
+                  <div class="evidence-grid">${cards}${frameRecord}</div>
+                </section>
+                <section class="connection-ledger" aria-labelledby="connection-title">
+                  <h2 id="connection-title">${escapeHTML(t.p07.connectionTitle)}</h2>
+                  ${relationshipItems ? `<ul>${relationshipItems}</ul>` : `<p class="empty-ledger">${escapeHTML(t.p07.connectionEmpty)}</p>`}
+                </section>
+              </div>
+              <aside class="case-summary" aria-labelledby="case-summary-title">
+                <header class="case-summary-head"><h2 id="case-summary-title">${escapeHTML(t.p07.caseSummary)}</h2></header>
+                <div class="case-summary-body">
+                  <div class="summary-meter"><span>${escapeHTML(t.p07.collected)}: <strong>${state.evidence.length}/6</strong></span><span>${escapeHTML(t.p07.relations)}: <strong>${analysis.connectionCount}/4</strong></span></div>
+                  <strong class="summary-status ${analysis.level === 'complete' ? 'complete' : ''}">${escapeHTML(statusLabel)}</strong>
+                  <p>${escapeHTML(statusBody)}</p>
+                  ${relationshipItems ? `<ul>${state.evidenceConnections.map(id => `<li>${escapeHTML(t.p07.relationLabels[id])}</li>`).join('')}</ul>` : ''}
+                  <div class="case-summary-actions">
+                    ${analysis.level !== 'complete' ? `<button class="secondary-button" type="button" data-action="CONTINUE_INVESTIGATION">${icon('back')} ${escapeHTML(t.p07.continueInvestigation)}</button>` : ''}
+                    <button class="primary-button" type="button" data-action="OPEN_DECISION">${escapeHTML(analysis.level === 'complete' ? t.p07.proceed : t.p07.proceedIncomplete)} ${icon('chevron')}</button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </main>
+          ${renderFooter()}
+        </div>`;
+    }
+
+    function renderDecisionFeedback(decision) {
+      const t = copy();
+      const feedback = t.p08.feedback[decision];
+      const media = ENDING_MEDIA[decision];
+      return `<section id="decision-feedback" class="decision-feedback" tabindex="-1" aria-labelledby="feedback-title">
+        <div class="feedback-layout">
+          <div class="feedback-copy">
+            <h2 id="feedback-title">${escapeHTML(t.p08.recorded)}: ${escapeHTML(t.p08.choices.find(item => item.id === decision).title)}</h2>
+            <p>${escapeHTML(feedback.statement)}</p>
+            <h3>${escapeHTML(t.p08.immediate)}</h3>
+            <ul>${feedback.immediate.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+            <h3>${escapeHTML(feedback.laterLabel)}</h3>
+            <ul>${feedback.later.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+            <p class="feedback-result"><strong>${escapeHTML(t.p08.result)}:</strong> ${escapeHTML(feedback.result)}</p>
+            <p>${escapeHTML(feedback.reflection)}</p>
+          </div>
+          <div class="ending-video-wrap">
+            <div class="ending-video-head">${escapeHTML(t.p08.videoTitle)}</div>
+            <video class="ending-video" controls playsinline preload="metadata" data-ending-video data-decision="${decision}" aria-describedby="ending-video-note">
+              <source src="${escapeHTML(media)}" type="video/mp4">
+            </video>
+            <p id="ending-video-note" class="ending-video-note">${escapeHTML(endingMediaUnavailable ? t.p08.mediaUnavailable : t.p08.videoNote)}</p>
+          </div>
+        </div>
+        <div class="feedback-actions">
+          <button class="secondary-button" type="button" data-action="RESELECT_DECISION">${icon('back')} ${escapeHTML(t.p08.review)}</button>
+          <button class="primary-button" type="button" data-action="CLOSE_CASE">${escapeHTML(t.p08.closeCase)} ${icon('chevron')}</button>
+        </div>
+      </section>`;
+    }
+
+    function renderP08() {
+      const t = copy();
+      const analysis = getAnalysisStatus();
+      const selected = t.p08.choices.find(item => item.id === selectedDecision);
+      const submitted = Boolean(state.finalDecision && selectedDecision === state.finalDecision);
+      return `
+        <div class="shell">
+          ${renderHeader()}
+          ${renderPageMeta(t.p08.page, 'P07', t.p08.back)}
+          <main class="page-main" aria-labelledby="scene-title">
+            <h1 id="scene-title" class="scene-heading" tabindex="-1">${escapeHTML(t.p08.title)}</h1>
+            <p class="scene-subtitle">${escapeHTML(t.p08.subtitle)}</p>
+            <hr class="scene-rule">
+            <p class="decision-intro">${escapeHTML(t.p08.intro)}</p>
+            ${submitted ? renderDecisionFeedback(state.finalDecision) : `
+              <div class="decision-layout">
+                <section aria-labelledby="decision-select-title">
+                  <h2 id="decision-select-title" class="sr-only">${escapeHTML(t.p08.select)}</h2>
+                  <div class="decision-options">
+                    ${t.p08.choices.map((choice, index) => {
+                      const locked = choice.id === 'FLAG_MANIPULATED' && analysis.level !== 'complete';
+                      return `<button class="decision-option" type="button" data-action="SELECT_DECISION" data-decision="${choice.id}" aria-pressed="${selectedDecision === choice.id}" ${locked ? 'disabled' : ''}>
+                        <span class="decision-number">0${index + 1}</span><span><strong>${escapeHTML(choice.title)}</strong><p>${escapeHTML(choice.statement)}</p><small>${escapeHTML(locked ? t.p08.flagLocked : choice.caution)}</small></span>
+                      </button>`;
+                    }).join('')}
+                  </div>
+                </section>
+                <aside id="decision-preview" class="decision-summary" tabindex="-1" aria-labelledby="decision-preview-title">
+                  <h2 id="decision-preview-title">${escapeHTML(t.p08.reviewTitle)}</h2>
+                  <div class="decision-summary-body">
+                    <span class="decision-confidence ${analysis.level === 'complete' ? 'complete' : ''}">${escapeHTML(t.p08.confidence[analysis.level])}</span>
+                    <p>${escapeHTML(selected ? selected.statement : t.p08.noSelection)}</p>
+                    ${selected ? `<p>${escapeHTML(selected.caution)}</p>` : ''}
+                    <button class="primary-button decision-submit" type="button" data-action="SUBMIT_DECISION" ${selected ? '' : 'disabled'}>${icon('send')} ${escapeHTML(t.p08.submit)}</button>
+                  </div>
+                </aside>
+              </div>`}
+          </main>
+          ${renderFooter()}
+        </div>`;
+    }
+
+    function renderP09() {
+      const t = copy();
+      const revealed = state.endingRevealed;
+      return `<main class="ending-screen" aria-labelledby="scene-title">
+        <button class="text-button ending-language" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
+        <section class="ending-terminal">
+          <h1 id="scene-title" class="sr-only" tabindex="-1">${escapeHTML(revealed ? t.p09.playPart : t.p01.closed)}</h1>
+          <div id="${revealed ? 'ending-final' : 'ending-intro'}" class="ending-copy" tabindex="-1">${escapeHTML(revealed ? t.p09.final : t.p09.intro)}</div>
+          <div class="ending-actions">
+            ${revealed
+              ? `<button class="primary-button" type="button" data-action="RETURN_TRACE">${escapeHTML(t.p09.returnTrace)} ${icon('chevron')}</button>`
+              : `<button class="primary-button" type="button" data-action="REVEAL_ENDING">${escapeHTML(t.p09.playPart)} ${icon('chevron')}</button>`}
+          </div>
+        </section>
+      </main>`;
+    }
+
+    const RENDERERS = { P00: renderP00, P01: renderP01, P02: renderP02, P03: renderP03, P04: renderP04, P05: renderP05, P06: renderP06, P07: renderP07, P08: renderP08, P09: renderP09 };
+
+    function drawEvidenceConnections() {
+      cancelAnimationFrame(connectionFrame);
+      connectionFrame = requestAnimationFrame(() => {
+        if (state.currentScene !== 'P07' || window.matchMedia('(max-width: 560px)').matches) return;
+        const stage = document.querySelector('.evidence-board-stage');
+        const overlay = document.getElementById('connection-overlay');
+        if (!stage || !overlay) return;
+        const stageRect = stage.getBoundingClientRect();
+        overlay.setAttribute('viewBox', `0 0 ${stageRect.width} ${stageRect.height}`);
+        overlay.replaceChildren();
+        state.evidenceConnections.forEach(id => {
+          const [first, second] = id.split('-').map(cardId => document.getElementById(`evidence-card-${cardId}`));
+          if (!first || !second) return;
+          const firstRect = first.getBoundingClientRect();
+          const secondRect = second.getBoundingClientRect();
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', firstRect.left - stageRect.left + firstRect.width / 2);
+          line.setAttribute('y1', firstRect.top - stageRect.top + firstRect.height / 2);
+          line.setAttribute('x2', secondRect.left - stageRect.left + secondRect.width / 2);
+          line.setAttribute('y2', secondRect.top - stageRect.top + secondRect.height / 2);
+          overlay.append(line);
+        });
+      });
+    }
 
     function render(moveFocus = false) {
       clearTimeout(bootTimer);
       stopTypingSound();
       renderToken += 1;
-      const renderer = RENDERERS[state.currentScene] || renderP03;
+      const renderer = RENDERERS[state.currentScene] || renderP00;
       document.documentElement.lang = state.language === 'zh' ? 'zh-CN' : 'en';
       document.title = state.language === 'zh' ? '滤镜之后 | 案件 001' : 'Behind the Filter | Case 001';
       app.innerHTML = renderer();
@@ -1965,14 +2577,16 @@
       if (state.currentScene === 'P00') {
         startBootSequence(renderToken);
       }
+      if (state.currentScene === 'P07') drawEvidenceConnections();
 
       if (state.currentScene !== 'P02') {
         stopMailHeartbeat();
       }
 
       if (moveFocus) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         requestAnimationFrame(() =>
-          document.getElementById('scene-title')?.focus()
+          document.getElementById('scene-title')?.focus({ preventScroll: true })
         );
       }
     }
@@ -1986,8 +2600,15 @@
       const text = copy().p00.text;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      if (!navigator.userActivation?.hasBeenActive) {
-        target.innerHTML = `CLICK ANYWHERE TO INITIALIZE<span class="cursor"></span>`;
+      if (state.openingSeen || reduced) {
+        stopTypingSound();
+        target.innerHTML = `${escapeHTML(text)}<span class="cursor"></span>`;
+        action.hidden = false;
+        return;
+      }
+
+      if (!reduced && !navigator.userActivation?.hasBeenActive) {
+        target.innerHTML = `${escapeHTML(copy().p00.initialize)}<span class="cursor"></span>`;
         action.hidden = true;
 
         document.addEventListener('pointerdown', () => {
@@ -1995,13 +2616,6 @@
           startBootSequence(token);
         }, { once: true });
 
-        return;
-      }
-
-      if (state.openingSeen || reduced) {
-        stopTypingSound();
-        target.innerHTML = `${escapeHTML(text)}<span class="cursor"></span>`;
-        action.hidden = false;
         return;
       }
 
@@ -2060,8 +2674,22 @@
         id: control.dataset.evidence,
         choice: control.dataset.choice,
         query: control.dataset.query,
-        node: control.dataset.node
+        node: control.dataset.node,
+        mark: control.dataset.mark,
+        decision: control.dataset.decision
       });
+    });
+
+    document.addEventListener('error', event => {
+      const video = event.target.closest?.('[data-ending-video]');
+      if (!video) return;
+      endingMediaUnavailable = true;
+      const note = document.getElementById('ending-video-note');
+      if (note) note.textContent = copy().p08.mediaUnavailable;
+    }, true);
+
+    window.addEventListener('resize', () => {
+      if (state.currentScene === 'P07') drawEvidenceConnections();
     });
 
     document.addEventListener('change', event => {
