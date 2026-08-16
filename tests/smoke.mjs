@@ -106,11 +106,12 @@ async function activatePage() {
   await delay(100);
 }
 
-async function snapshot(scene, width, height) {
+async function snapshot(scene, width, height, { endingWindow = false } = {}) {
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 600 });
   await evaluate(`dispatch('NAVIGATE', { scene: ${JSON.stringify(scene)} })`);
+  if (endingWindow) await evaluate(`dispatch('OPEN_ENDING_VIDEO')`);
   await evaluate(`liveStatus.classList.remove('is-visible')`);
-  await delay(180);
+  await delay(endingWindow ? 280 : 180);
   const layout = await evaluate(`({
     scene: state.currentScene,
     viewport: document.documentElement.clientWidth,
@@ -122,8 +123,9 @@ async function snapshot(scene, width, height) {
   assert.ok(layout.scrollWidth <= layout.viewport, `${scene} has horizontal overflow at ${width}px: ${JSON.stringify(layout.overflowingElements)}`);
   assert.deepEqual(layout.overflowingButtons, [], `${scene} has overflowing button labels at ${width}px`);
   const image = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const filename = `${scene}-${width}x${height}.png`;
+  const filename = `${scene}${endingWindow ? '-video-window' : ''}-${width}x${height}.png`;
   fs.writeFileSync(path.join(artifacts, filename), Buffer.from(image.data, 'base64'));
+  if (endingWindow) await evaluate(`closeEndingVideo({ restoreFocus: false, animate: false })`);
   return filename;
 }
 
@@ -248,26 +250,107 @@ try {
   assert.equal(await evaluate('state.currentScene'), 'P08');
   assert.equal(await evaluate(`document.querySelector('[data-decision="FLAG_MANIPULATED"]').disabled`), false);
 
-  for (const [decision, media] of [['PUBLISH', 'ed1.mp4'], ['VERIFY_FURTHER', 'ed2.mp4'], ['FLAG_MANIPULATED', 'ed3.mp4']]) {
+  await evaluate(`(() => {
+    window.__endingPlayMode = 'resolve';
+    window.__endingPlayCalls = [];
+    window.__originalMediaPlay = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function() {
+      if (!this.matches?.('[data-ending-video]')) return window.__originalMediaPlay.call(this);
+      window.__endingPlayCalls.push({ muted: this.muted, volume: this.volume });
+      if (window.__endingPlayMode === 'reject-all' || (window.__endingPlayMode === 'reject-audible' && !this.muted)) {
+        return Promise.reject(new DOMException('Autoplay blocked', 'NotAllowedError'));
+      }
+      return Promise.resolve();
+    };
+  })()`);
+
+  const branchCases = [
+    ['PUBLISH', 'ed1.mp4', 'reject-audible'],
+    ['VERIFY_FURTHER', 'ed2.mp4', 'reject-all'],
+    ['FLAG_MANIPULATED', 'ed3.mp4', 'resolve']
+  ];
+  for (const [decision, media, playMode] of branchCases) {
+    await evaluate(`window.__endingPlayMode = ${JSON.stringify(playMode)}; window.__endingPlayCalls = []`);
     await click(`[data-action="SELECT_DECISION"][data-decision="${decision}"]`);
     await click('[data-action="SUBMIT_DECISION"]');
-    const branch = await evaluate(`({ finalDecision: state.finalDecision, src: document.querySelector('[data-ending-video] source').getAttribute('src'), autoplay: document.querySelector('[data-ending-video]').autoplay, controls: document.querySelector('[data-ending-video]').controls, paused: document.querySelector('[data-ending-video]').paused })`);
+    await delay(120);
+    const branch = await evaluate(`(() => {
+      const video = document.querySelector('[data-ending-video]');
+      return {
+        finalDecision: state.finalDecision,
+        src: video.querySelector('source').getAttribute('src'),
+        controls: video.controls,
+        volume: video.volume,
+        muted: video.muted,
+        open: endingVideoOpen && !endingMediaLayer.hidden,
+        status: endingVideoStatus,
+        calls: window.__endingPlayCalls,
+        focus: document.activeElement.id,
+        inPageVideo: Boolean(document.querySelector('#decision-feedback [data-ending-video]')),
+        feedbackGrid: Boolean(document.querySelector('#decision-feedback .feedback-layout'))
+      };
+    })()`);
     assert.equal(branch.finalDecision, decision);
     assert.equal(branch.src.endsWith(media), true);
-    assert.equal(branch.autoplay, false);
     assert.equal(branch.controls, true);
-    assert.equal(branch.paused, true);
+    assert.equal(branch.volume, 0.25);
+    assert.equal(branch.open, true);
+    assert.equal(branch.focus, 'ending-media-close');
+    assert.equal(branch.inPageVideo, false);
+    assert.equal(branch.feedbackGrid, false);
+    if (playMode === 'reject-audible') {
+      assert.deepEqual(branch.calls.map(call => call.muted), [false, true]);
+      assert.equal(branch.muted, true);
+      assert.equal(branch.status, 'muted');
+    } else if (playMode === 'reject-all') {
+      assert.deepEqual(branch.calls.map(call => call.muted), [false, true]);
+      assert.equal(branch.status, 'manual');
+      assert.equal(await evaluate(`!document.querySelector('[data-action="RETRY_ENDING_VIDEO"]').hidden`), true);
+      await evaluate(`window.__endingPlayMode = 'resolve'`);
+      await click('[data-action="RETRY_ENDING_VIDEO"]');
+      assert.equal(await evaluate(`endingVideoStatus`), 'playing');
+      assert.equal(await evaluate(`document.querySelector('[data-action="RETRY_ENDING_VIDEO"]').hidden`), true);
+    } else {
+      assert.deepEqual(branch.calls.map(call => call.muted), [false]);
+      assert.equal(branch.muted, false);
+      assert.equal(branch.status, 'playing');
+    }
     if (decision !== 'FLAG_MANIPULATED') await click('[data-action="RESELECT_DECISION"]');
   }
 
+  const callsBeforeLanguageSwitch = await evaluate(`window.__endingPlayCalls.length`);
+  await evaluate(`window.__endingVideoNode = document.querySelector('[data-ending-video]'); dispatch('TOGGLE_LANGUAGE')`);
+  const translatedWindow = await evaluate(`({ sameVideo: window.__endingVideoNode === document.querySelector('[data-ending-video]'), calls: window.__endingPlayCalls.length, title: document.getElementById('ending-media-title').textContent, expectedTitle: COPY.zh.p08.videoTitle })`);
+  assert.equal(translatedWindow.sameVideo, true);
+  assert.equal(translatedWindow.calls, callsBeforeLanguageSwitch);
+  assert.equal(translatedWindow.title, translatedWindow.expectedTitle);
+  await evaluate(`dispatch('TOGGLE_LANGUAGE')`);
+
+  await evaluate(`document.querySelector('[data-ending-video]').dispatchEvent(new Event('ended'))`);
+  assert.equal(await evaluate(`endingVideoOpen && endingVideoStatus === 'ended'`), true, 'The playback window should remain open on the final frame.');
+  await click('[data-action="TOGGLE_ENDING_MUTE"]');
+  assert.equal(await evaluate(`document.querySelector('[data-ending-video]').muted`), true);
+  await click('[data-action="TOGGLE_ENDING_MUTE"]');
+  assert.equal(await evaluate(`document.querySelector('[data-ending-video]').muted`), false);
+  await evaluate(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
+  await delay(220);
+  assert.equal(await evaluate(`endingMediaLayer.hidden && !endingVideoOpen`), true);
+  assert.equal(await evaluate(`document.activeElement.dataset.action`), 'OPEN_ENDING_VIDEO');
+
+  await evaluate(`window.__endingPlayMode = 'resolve'`);
+  await click('[data-action="OPEN_ENDING_VIDEO"]');
   await evaluate(`document.querySelector('[data-ending-video]').dispatchEvent(new Event('error'))`);
   assert.equal(await evaluate(`document.getElementById('ending-video-note').textContent === COPY.en.p08.mediaUnavailable`), true);
+  assert.equal(await evaluate(`!document.querySelector('[data-action="RETRY_ENDING_VIDEO"]').hidden`), true);
   await send('Page.reload', { ignoreCache: true });
   await delay(500);
-  const restoredDecision = await evaluate(`({ scene: state.currentScene, finalDecision: state.finalDecision, media: document.querySelector('[data-ending-video] source').getAttribute('src') })`);
+  const restoredDecision = await evaluate(`({ scene: state.currentScene, finalDecision: state.finalDecision, windowOpen: endingVideoOpen, layerHidden: endingMediaLayer.hidden, hasVideo: Boolean(document.querySelector('[data-ending-video]')), hasReplay: Boolean(document.querySelector('[data-action="OPEN_ENDING_VIDEO"]')) })`);
   assert.equal(restoredDecision.scene, 'P08');
   assert.equal(restoredDecision.finalDecision, 'FLAG_MANIPULATED');
-  assert.equal(restoredDecision.media.endsWith('ed3.mp4'), true);
+  assert.equal(restoredDecision.windowOpen, false);
+  assert.equal(restoredDecision.layerHidden, true);
+  assert.equal(restoredDecision.hasVideo, false);
+  assert.equal(restoredDecision.hasReplay, true);
 
   await click('[data-action="CLOSE_CASE"]');
   assert.equal(await evaluate('state.currentScene'), 'P09');
@@ -281,6 +364,10 @@ try {
   assert.equal(await evaluate(`document.querySelector('[data-action="REVIEW_CASE"]').textContent.includes(COPY.en.p01.review)`), true);
 
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  await evaluate(`dispatch('NAVIGATE', { scene: 'P08' }); dispatch('OPEN_ENDING_VIDEO')`);
+  const reducedWindow = await evaluate(`(() => { const animationDuration = parseFloat(getComputedStyle(document.querySelector('.ending-media-window')).animationDuration); closeEndingVideo(); return { animationDuration, hiddenImmediately: endingMediaLayer.hidden }; })()`);
+  assert.ok(reducedWindow.animationDuration <= 0.001, 'Reduced motion should suppress the playback window animation.');
+  assert.equal(reducedWindow.hiddenImmediately, true, 'Reduced motion should close the playback window immediately.');
   await evaluate(`state.openingSeen = false; dispatch('NAVIGATE', { scene: 'P00' })`);
   assert.equal(await evaluate(`!document.getElementById('boot-action').hidden`), true, 'Reduced motion should reveal P00 immediately.');
   await send('Emulation.setEmulatedMedia', { features: [] });
@@ -304,6 +391,7 @@ try {
   const screenshots = [];
   for (const [width, height] of [[1440, 900], [1024, 768], [390, 844]]) {
     for (const scene of ['P00', 'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09']) screenshots.push(await snapshot(scene, width, height));
+    screenshots.push(await snapshot('P08', width, height, { endingWindow: true }));
   }
 
   const incompleteState = {

@@ -8,7 +8,7 @@ Open [`behind-the-filter.html`](./behind-the-filter.html) directly in a browser.
 
 Current milestone: Case 001 scenes P00-P09 are playable from opening through evidence analysis, final recommendation, branch consequence, and case closure.
 
-Media included in the offline bundle: interface sound effects, the P05 archive recording, and three optional P08 branch consequence videos. Ending videos use native controls and never autoplay.
+Media included in the offline bundle: interface sound effects, the P05 archive recording, and three P08 branch consequence videos. Submitting a recommendation opens its consequence video in a separate TRACE playback window and attempts playback at 25% volume. Browsers that block audible autoplay fall back to muted playback with an on-screen unmute control.
 
 The files `trace-arg.html` and `trace-behind-the-filter-combined.html` are preserved as team drafts and visual references. Continue implementation in `behind-the-filter.html`.
 

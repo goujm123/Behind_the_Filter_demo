@@ -824,18 +824,118 @@
     .decision-summary-body p { color: #bcc5d0; line-height: 1.55; }
     .decision-submit { width: 100%; margin-top: 10px; }
     .decision-feedback { margin-top: 22px; border-top: 1px solid #657083; padding-top: 22px; }
-    .feedback-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .75fr); gap: 18px; align-items: start; }
-    .feedback-copy { border-left: 3px solid var(--blue); padding-left: 18px; }
+    .feedback-copy { max-width: 940px; border-left: 3px solid var(--blue); padding-left: 18px; }
     .feedback-copy h2 { margin-top: 0; color: white; font-size: 22px; }
     .feedback-copy h3 { margin: 20px 0 7px; color: var(--blue-pale); font-size: 14px; }
     .feedback-copy p, .feedback-copy li { color: #c6ced9; line-height: 1.6; }
     .feedback-copy ul { padding-left: 21px; }
     .feedback-result { padding: 13px; border: 1px solid #7d6230; color: #eadba8; background: #151108; }
-    .ending-video-wrap { border: 1px solid #657083; background: #020407; }
-    .ending-video-head { padding: 10px 12px; border-bottom: 1px solid #46515e; color: var(--blue-pale); background: #0d1a31; font-size: 11px; }
-    .ending-video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
-    .ending-video-note { margin: 0; padding: 11px 12px; color: #9eabba; line-height: 1.45; font-size: 11px; }
     .feedback-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+    .ending-media-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 875;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      pointer-events: none;
+    }
+    .ending-media-layer[hidden] { display: none; }
+    .ending-media-window {
+      width: min(960px, calc(100vw - 64px));
+      max-height: calc(100dvh - 64px);
+      overflow: auto;
+      border: 1px solid #7c8ba0;
+      color: #d9e1ec;
+      background: #02060b;
+      box-shadow: 0 24px 80px #000d, 0 0 0 1px #12386766, 0 0 42px #0b326855;
+      pointer-events: auto;
+      animation: outcome-window-in 220ms cubic-bezier(.2, .75, .2, 1) both;
+    }
+    .ending-media-window.is-closing { animation: outcome-window-out 160ms ease-in both; }
+    .ending-media-head {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 7px 8px 7px 14px;
+      border-bottom: 1px solid #56667c;
+      background: #0b1b35;
+    }
+    .ending-media-identity { min-width: 0; display: flex; align-items: center; gap: 10px; }
+    .ending-media-signal { width: 8px; height: 8px; flex: 0 0 auto; background: var(--green); box-shadow: 0 0 10px #63dc92aa; }
+    .ending-media-title { min-width: 0; }
+    .ending-media-title strong, .ending-media-title span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ending-media-title strong { color: var(--blue-pale); font-size: 12px; }
+    .ending-media-title span { margin-top: 2px; color: #8f9cac; font-size: 10px; }
+    .ending-media-tools { display: flex; flex: 0 0 auto; gap: 6px; }
+    .ending-media-tool {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid #627187;
+      color: #e4ebf5;
+      background: #050a12;
+      cursor: pointer;
+    }
+    .ending-media-tool:hover { border-color: var(--blue); color: white; background: #10264c; }
+    .ending-media-stage { position: relative; overflow: hidden; background: #000; }
+    .ending-media-stage::after {
+      content: "";
+      position: absolute;
+      inset: -35% 0 auto;
+      height: 35%;
+      background: linear-gradient(180deg, transparent, #9dc5ff14, transparent);
+      pointer-events: none;
+      animation: outcome-scan 900ms 100ms ease-out both;
+    }
+    .ending-video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+    .ending-play-prompt {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      max-width: calc(100% - 32px);
+      padding: 10px 14px;
+      border: 1px solid #aebed3;
+      color: white;
+      background: #07111fe8;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+    }
+    .ending-play-prompt[hidden] { display: none; }
+    .ending-media-foot {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-top: 1px solid #435168;
+      background: #07101e;
+    }
+    .ending-media-state { flex: 0 0 auto; padding: 3px 6px; border: 1px solid #34734c; color: var(--green); font-size: 10px; }
+    .ending-media-state.warning { border-color: #7d6230; color: var(--yellow); }
+    .ending-video-note { margin: 0; color: #9eabba; line-height: 1.45; font-size: 11px; }
+
+    @keyframes outcome-window-in {
+      from { opacity: 0; transform: translateY(14px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes outcome-window-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(8px) scale(.98); }
+    }
+    @keyframes outcome-scan {
+      from { transform: translateY(0); }
+      to { transform: translateY(390%); }
+    }
 
     /* P09 */
     .ending-screen { min-height: 100vh; display: grid; place-items: center; padding: 34px 20px; background: #000; }
@@ -896,7 +996,7 @@
       .home-title { font-size: 78px; }
       .feed-layout { grid-template-columns: 1fr; }
       .trace-layout { grid-template-columns: 1fr; }
-      .board-layout, .decision-layout, .feedback-layout { grid-template-columns: 1fr; }
+      .board-layout, .decision-layout { grid-template-columns: 1fr; }
       .case-summary { position: static; }
       .archive-inspection { grid-template-columns: 1fr; }
       .side-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -992,6 +1092,11 @@
       .evidence-card dl div { grid-template-columns: 74px minmax(0, 1fr); }
       .evidence-card dd { font-size: 12px; }
       .feedback-actions, .ending-actions { display: grid; grid-template-columns: 1fr; }
+      .ending-media-layer { padding: 10px; }
+      .ending-media-window { width: 100%; max-height: calc(100dvh - 20px); }
+      .ending-media-head { gap: 8px; padding-left: 10px; }
+      .ending-media-title span { max-width: 190px; }
+      .ending-media-foot { align-items: flex-start; flex-direction: column; }
       .ending-terminal { padding: 28px 18px; }
       .ending-copy { min-height: 520px; font-size: 13px; }
     }
@@ -1025,6 +1130,9 @@
     <symbol id="i-x" viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></symbol>
     <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 15 9-15 9Z"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12"/></symbol>
+    <symbol id="i-volume-x" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4Z"/><path d="m16 9 5 5M21 9l-5 5"/></symbol>
   </svg>
 
   <main id="app"></main>
@@ -1042,6 +1150,8 @@
       <div id="dialog-actions" class="dialog-actions"></div>
     </section>
   </div>
+
+  <div id="ending-media-layer" class="ending-media-layer" hidden></div>
 
   <div id="live-status" class="live-status" role="status" aria-live="polite"></div>
 
@@ -1245,7 +1355,9 @@
             VERIFY_FURTHER: { statement: 'TRACE issued a holding statement: "Investigation ongoing."', immediate: ['The video continued to spread. TRACE did not stop it.', 'Maya Lin received 3,400 messages asking "Is it true?"', 'Some users interpreted silence as confirmation.', 'The false narrative gained credibility through repetition.'], laterLabel: '72 HOURS LATER', later: ['TRACE completed the analysis: Manipulated / Misattributed.', '8.2 million people saw the original claim.', 'Only 890,000 saw the correction.', 'The correction was buried by platform algorithms.'], result: 'You chose caution, but caution without speed allowed the false claim to solidify.', reflection: 'Uncertainty is responsible. In a networked world, silence is also a signal.' },
             FLAG_MANIPULATED: { statement: 'TRACE published a verified statement: "The video attributed to Maya Lin uses facial footage from a public Northbridge University livestream (November 11, 2024). The uploader account (truthseeker_99) exhibits coordinated inauthentic behavior. The claim is false."', immediate: ['12 news outlets picked up the TRACE analysis.', '3 platforms added a Manipulated Media label.', 'Maya Lin\'s harassment messages dropped by 60%.', 'truthseeker_99\'s new account was suspended.'], laterLabel: '72 HOURS LATER', later: ['Northbridge confirmed the livestream archive.', 'Aria Chen shared the TRACE report in student networks.', 'The false video still circulates privately, but the public narrative shifted.', 'Maya Lin posted: "Thank you to everyone who checked before sharing."'], result: 'You interrupted the amplification chain. Verification reduced harm; it did not eliminate it.', reflection: 'This is Media and Information Literacy in practice. Not a quiz. A choice. A consequence.' }
           },
-          videoTitle: 'BRANCH CONSEQUENCE RECORD', videoNote: 'Optional visual summary. Use the player controls to watch with sound, or continue without playing it.', mediaUnavailable: 'The optional video could not be loaded. The complete outcome remains available in text.'
+          videoTitle: 'TRACE // OUTCOME PLAYBACK', replayVideo: 'REPLAY CONSEQUENCE VIDEO', closeVideo: 'CLOSE PLAYBACK', muteVideo: 'MUTE', unmuteVideo: 'UNMUTE', playVideo: 'PLAY VIDEO', retryVideo: 'RETRY VIDEO',
+          videoStates: { starting: 'BUFFERING', playing: 'PLAYING', muted: 'MUTED', paused: 'PAUSED', ended: 'COMPLETE', manual: 'ACTION REQUIRED', error: 'MEDIA ERROR' },
+          videoStarting: 'Opening consequence record...', videoPlaying: 'Playing at 25% volume.', videoMuted: 'Autoplay continued muted. Select Unmute to hear audio.', videoPaused: 'Playback paused.', videoEnded: 'Playback complete. Replay or close this window.', videoManual: 'Automatic playback was blocked. Start the record manually.', videoNote: 'This visual record supplements the complete written outcome.', mediaUnavailable: 'The video could not be loaded. The complete outcome remains available in text.'
         },
         p09: {
           intro: 'CASE 001 - CLOSED\n\nMaya Lin\'s face was real.\nThe context was not.\n\n2,803,119 people saw a video.\nHow many checked where it came from?\n\nThis was a fictional case.\nThe patterns are not.\n\nAI manipulation. Coordinated amplification.\nFalse scarcity. Citation loops.\nThese happen every day.\n\nYou are not just a viewer.\nYou are a node in the network.\n\nEvery click can amplify harm.\nEvery verification can interrupt it.\n\nVERIFY BEFORE YOU AMPLIFY.',
@@ -1417,7 +1529,9 @@
             VERIFY_FURTHER: { statement: 'TRACE 发布暂缓声明：“调查进行中。”', immediate: ['视频继续传播，TRACE 未能阻止它。', 'Maya Lin 收到 3,400 条询问“这是真的吗？”的信息。', '一些用户将沉默解读为确认。', '虚假叙事通过重复获得可信度。'], laterLabel: '72 小时后', later: ['TRACE 完成分析：篡改 / 错误归属。', '820 万人看到了原始说法。', '只有 89 万人看到了更正。', '更正被平台算法淹没。'], result: '你选择了谨慎，但缺少速度的谨慎让虚假说法得以固化。', reflection: '不确定性是负责任的立场。但在网络世界中，沉默也是一种信号。' },
             FLAG_MANIPULATED: { statement: 'TRACE 发布经核实的声明：“归因于 Maya Lin 的视频使用了她在 Northbridge 大学公开直播（2024年11月11日）中的脸部画面。上传者账号（truthseeker_99）表现出协同不真实行为。该说法是假的。”', immediate: ['12 家新闻机构采纳 TRACE 的分析。', '3 个平台添加“篡改媒体”标签。', 'Maya Lin 收到的骚扰信息减少 60%。', 'truthseeker_99 的新账号被暂停。'], laterLabel: '72 小时后', later: ['Northbridge 确认直播档案。', 'Aria Chen 在学生网络中分享 TRACE 报告。', '虚假视频仍在私人群组传播，但公开叙事已经转变。', 'Maya Lin 发帖：“感谢每一位在分享前核实的人。”'], result: '你中断了放大链条。核实减少了伤害，但没有完全消除它。', reflection: '这就是媒介与信息素养的实践。不是测验，而是选择与后果。' }
           },
-          videoTitle: '分支后果记录', videoNote: '可选视觉摘要。使用播放器控件有声观看，也可以不播放并继续。', mediaUnavailable: '可选视频无法加载。完整结局仍可通过文字查看。'
+          videoTitle: 'TRACE // 结局回放', replayVideo: '重播结局视频', closeVideo: '关闭回放', muteVideo: '静音', unmuteVideo: '取消静音', playVideo: '播放视频', retryVideo: '重试视频',
+          videoStates: { starting: '正在缓冲', playing: '正在播放', muted: '静音播放', paused: '已暂停', ended: '播放完成', manual: '需要操作', error: '媒体错误' },
+          videoStarting: '正在打开结局记录……', videoPlaying: '正在以 25% 音量播放。', videoMuted: '浏览器已改为静音自动播放。选择“取消静音”可恢复声音。', videoPaused: '播放已暂停。', videoEnded: '播放完成。你可以重播或关闭此窗口。', videoManual: '浏览器阻止了自动播放，请手动开始播放。', videoNote: '此视觉记录用于补充页面中的完整文字结局。', mediaUnavailable: '视频无法加载。完整结局仍可通过文字查看。'
         },
         p09: {
           intro: '案件 001 - 已结案\n\nMaya Lin 的脸是真实的。\n语境不是。\n\n2,803,119 人看到了一段视频。\n有多少人核实了它来自哪里？\n\n这是一个虚构的案件。\n这些模式不是。\n\nAI 篡改。协同放大。\n虚假稀缺。引用循环。\n这些每天都在发生。\n\n你不只是一个观众。\n你是网络中的一个节点。\n\n每一次点击都可能放大伤害。\n每一次核实都可能中断伤害。\n\n转发前核实。',
@@ -1444,7 +1558,14 @@
     let expandedTraceNode = 'first-seen';
     let connectionStart = null;
     let selectedDecision = state.finalDecision;
+    let endingVideoOpen = false;
+    let endingVideoDecision = null;
+    let endingVideoMuted = false;
+    let endingVideoStatus = 'idle';
     let endingMediaUnavailable = false;
+    let endingVideoReturnFocus = null;
+    let endingVideoPlayToken = 0;
+    let endingVideoCloseTimer = null;
     let connectionFrame = null;
     let renderToken = 0;
     let bootTimer = null;
@@ -1455,6 +1576,7 @@
     const dialogTitle = document.getElementById('dialog-title');
     const dialogBody = document.getElementById('dialog-body');
     const dialogActions = document.getElementById('dialog-actions');
+    const endingMediaLayer = document.getElementById('ending-media-layer');
     const liveStatus = document.getElementById('live-status');
 
     function icon(name) {
@@ -1569,6 +1691,198 @@
       liveStatus.textContent = message;
       liveStatus.classList.add('is-visible');
       toastTimer = setTimeout(() => liveStatus.classList.remove('is-visible'), 2600);
+    }
+
+    function endingVideoMessage() {
+      const t = copy().p08;
+      if (endingMediaUnavailable) return { state: t.videoStates.error, note: t.mediaUnavailable, warning: true };
+      const messages = {
+        starting: t.videoStarting,
+        playing: t.videoPlaying,
+        muted: t.videoMuted,
+        paused: t.videoPaused,
+        ended: t.videoEnded,
+        manual: t.videoManual
+      };
+      const status = Object.hasOwn(t.videoStates, endingVideoStatus) ? endingVideoStatus : 'starting';
+      return { state: t.videoStates[status], note: messages[status] || t.videoNote, warning: status === 'manual' };
+    }
+
+    function updateEndingMediaChrome() {
+      const windowElement = endingMediaLayer.querySelector('.ending-media-window');
+      if (!windowElement) return;
+      const t = copy().p08;
+      const choice = t.choices.find(item => item.id === endingVideoDecision);
+      const message = endingVideoMessage();
+      const title = document.getElementById('ending-media-title');
+      const branch = document.getElementById('ending-media-branch');
+      const status = document.getElementById('ending-media-status');
+      const note = document.getElementById('ending-video-note');
+      const muteButton = document.querySelector('[data-action="TOGGLE_ENDING_MUTE"]');
+      const closeButton = document.getElementById('ending-media-close');
+      const playPrompt = document.querySelector('[data-action="RETRY_ENDING_VIDEO"]');
+
+      if (title) title.textContent = t.videoTitle;
+      if (branch) branch.textContent = choice?.title || endingVideoDecision;
+      if (status) {
+        status.textContent = message.state;
+        status.classList.toggle('warning', message.warning);
+      }
+      if (note) note.textContent = message.note;
+      if (muteButton) {
+        const label = endingVideoMuted ? t.unmuteVideo : t.muteVideo;
+        muteButton.disabled = endingMediaUnavailable;
+        muteButton.title = label;
+        muteButton.setAttribute('aria-label', label);
+        muteButton.innerHTML = icon(endingVideoMuted ? 'volume-x' : 'volume');
+      }
+      if (closeButton) {
+        closeButton.title = t.closeVideo;
+        closeButton.setAttribute('aria-label', t.closeVideo);
+      }
+      if (playPrompt) {
+        const promptVisible = endingMediaUnavailable || endingVideoStatus === 'manual';
+        playPrompt.hidden = !promptVisible;
+        playPrompt.innerHTML = `${icon('play')} ${escapeHTML(endingMediaUnavailable ? t.retryVideo : t.playVideo)}`;
+      }
+      windowElement.setAttribute('aria-label', `${t.videoTitle}: ${choice?.title || endingVideoDecision}`);
+    }
+
+    function renderEndingMediaWindow() {
+      const validDecision = Object.hasOwn(ENDING_MEDIA, endingVideoDecision);
+      if (!endingVideoOpen || state.currentScene !== 'P08' || !validDecision) {
+        if (!endingVideoOpen) endingMediaLayer.hidden = true;
+        return;
+      }
+
+      const existingVideo = endingMediaLayer.querySelector('[data-ending-video]');
+      if (!existingVideo || existingVideo.dataset.decision !== endingVideoDecision) {
+        endingMediaLayer.innerHTML = `
+          <section class="ending-media-window" role="region" aria-labelledby="ending-media-title" aria-describedby="ending-video-note">
+            <header class="ending-media-head">
+              <div class="ending-media-identity">
+                <span class="ending-media-signal" aria-hidden="true"></span>
+                <div class="ending-media-title">
+                  <strong id="ending-media-title"></strong>
+                  <span id="ending-media-branch"></span>
+                </div>
+              </div>
+              <div class="ending-media-tools">
+                <button class="ending-media-tool" type="button" data-action="TOGGLE_ENDING_MUTE"></button>
+                <button id="ending-media-close" class="ending-media-tool" type="button" data-action="CLOSE_ENDING_VIDEO">${icon('x')}</button>
+              </div>
+            </header>
+            <div class="ending-media-stage">
+              <video class="ending-video" controls playsinline preload="auto" data-ending-video data-decision="${escapeHTML(endingVideoDecision)}" aria-describedby="ending-video-note">
+                <source src="${escapeHTML(ENDING_MEDIA[endingVideoDecision])}" type="video/mp4">
+              </video>
+              <button class="ending-play-prompt" type="button" data-action="RETRY_ENDING_VIDEO" hidden></button>
+            </div>
+            <footer class="ending-media-foot" role="status" aria-live="polite">
+              <span id="ending-media-status" class="ending-media-state"></span>
+              <p id="ending-video-note" class="ending-video-note"></p>
+            </footer>
+          </section>`;
+      }
+      endingMediaLayer.hidden = false;
+      updateEndingMediaChrome();
+    }
+
+    function setEndingVideoStatus(status) {
+      endingVideoStatus = status;
+      updateEndingMediaChrome();
+    }
+
+    function startEndingVideoPlayback({ reload = false } = {}) {
+      const video = endingMediaLayer.querySelector('[data-ending-video]');
+      if (!video || !endingVideoOpen) return;
+      const token = ++endingVideoPlayToken;
+      endingMediaUnavailable = false;
+      endingVideoMuted = false;
+      endingVideoStatus = 'starting';
+      video.volume = 0.25;
+      video.muted = false;
+      if (reload) video.load();
+      updateEndingMediaChrome();
+
+      Promise.resolve(video.play()).then(() => {
+        if (token !== endingVideoPlayToken || !endingVideoOpen) return;
+        setEndingVideoStatus(video.muted ? 'muted' : 'playing');
+      }).catch(() => {
+        if (token !== endingVideoPlayToken || !endingVideoOpen || endingMediaUnavailable) return;
+        video.muted = true;
+        endingVideoMuted = true;
+        updateEndingMediaChrome();
+        Promise.resolve(video.play()).then(() => {
+          if (token !== endingVideoPlayToken || !endingVideoOpen) return;
+          setEndingVideoStatus('muted');
+        }).catch(() => {
+          if (token !== endingVideoPlayToken || !endingVideoOpen || endingMediaUnavailable) return;
+          setEndingVideoStatus('manual');
+        });
+      });
+    }
+
+    function openEndingVideo(decision) {
+      if (state.currentScene !== 'P08' || !Object.hasOwn(ENDING_MEDIA, decision)) return;
+      clearTimeout(endingVideoCloseTimer);
+      endingVideoReturnFocus = document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+        ? document.activeElement
+        : null;
+      endingVideoOpen = true;
+      endingVideoDecision = decision;
+      endingVideoMuted = false;
+      endingVideoStatus = 'starting';
+      endingMediaUnavailable = false;
+      renderEndingMediaWindow();
+      startEndingVideoPlayback();
+      requestAnimationFrame(() => document.getElementById('ending-media-close')?.focus());
+    }
+
+    function closeEndingVideo({ restoreFocus = true, animate = true } = {}) {
+      const windowElement = endingMediaLayer.querySelector('.ending-media-window');
+      const video = endingMediaLayer.querySelector('[data-ending-video]');
+      if (!endingVideoOpen && !windowElement) return;
+      clearTimeout(endingVideoCloseTimer);
+      endingVideoPlayToken += 1;
+      endingVideoOpen = false;
+      if (video) video.pause();
+
+      const finish = () => {
+        if (video) {
+          try { video.currentTime = 0; } catch { /* Media may not have loaded enough to seek. */ }
+        }
+        endingMediaLayer.hidden = true;
+        endingMediaLayer.innerHTML = '';
+        endingVideoDecision = null;
+        endingVideoMuted = false;
+        endingVideoStatus = 'idle';
+        endingMediaUnavailable = false;
+        if (restoreFocus) {
+          const target = endingVideoReturnFocus instanceof HTMLElement && document.contains(endingVideoReturnFocus)
+            ? endingVideoReturnFocus
+            : document.querySelector('[data-action="OPEN_ENDING_VIDEO"]');
+          target?.focus();
+        }
+        endingVideoReturnFocus = null;
+      };
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!animate || reduced || !windowElement) {
+        finish();
+        return;
+      }
+      windowElement.classList.add('is-closing');
+      endingVideoCloseTimer = setTimeout(finish, 170);
+    }
+
+    function toggleEndingVideoMute() {
+      const video = endingMediaLayer.querySelector('[data-ending-video]');
+      if (!video || endingMediaUnavailable) return;
+      video.muted = !video.muted;
+      endingVideoMuted = video.muted;
+      if (!video.paused && !video.ended) endingVideoStatus = video.muted ? 'muted' : 'playing';
+      updateEndingMediaChrome();
     }
 
     function dispatch(action, payload = {}) {
@@ -1832,9 +2146,24 @@
           state.finalDecision = selectedDecision;
           saveState();
           render(false);
-          requestAnimationFrame(() => document.getElementById('decision-feedback')?.focus());
+          openEndingVideo(state.finalDecision);
+          break;
+        case 'OPEN_ENDING_VIDEO':
+          if (!state.finalDecision) return;
+          openEndingVideo(state.finalDecision);
+          break;
+        case 'CLOSE_ENDING_VIDEO':
+          closeEndingVideo();
+          break;
+        case 'TOGGLE_ENDING_MUTE':
+          toggleEndingVideoMute();
+          break;
+        case 'RETRY_ENDING_VIDEO':
+          if (!endingVideoOpen) return;
+          startEndingVideoPlayback({ reload: endingMediaUnavailable });
           break;
         case 'RESELECT_DECISION':
+          closeEndingVideo({ restoreFocus: false, animate: false });
           selectedDecision = null;
           endingMediaUnavailable = false;
           render(false);
@@ -1842,6 +2171,7 @@
           break;
         case 'CLOSE_CASE':
           if (!state.finalDecision) return;
+          closeEndingVideo({ restoreFocus: false, animate: false });
           unlockScene('P09');
           state.currentScene = 'P09';
           state.caseClosed = true;
@@ -1885,6 +2215,7 @@
           expandedTraceNode = 'first-seen';
           connectionStart = null;
           selectedDecision = null;
+          closeEndingVideo({ restoreFocus: false, animate: false });
           endingMediaUnavailable = false;
           closeModal(false);
           render(true);
@@ -1896,6 +2227,7 @@
     }
 
     function openModal(config) {
+      closeEndingVideo({ restoreFocus: false, animate: false });
       lastFocus = document.activeElement;
       activeModal = config;
       app.inert = true;
@@ -2451,28 +2783,19 @@
     function renderDecisionFeedback(decision) {
       const t = copy();
       const feedback = t.p08.feedback[decision];
-      const media = ENDING_MEDIA[decision];
       return `<section id="decision-feedback" class="decision-feedback" tabindex="-1" aria-labelledby="feedback-title">
-        <div class="feedback-layout">
-          <div class="feedback-copy">
-            <h2 id="feedback-title">${escapeHTML(t.p08.recorded)}: ${escapeHTML(t.p08.choices.find(item => item.id === decision).title)}</h2>
-            <p>${escapeHTML(feedback.statement)}</p>
-            <h3>${escapeHTML(t.p08.immediate)}</h3>
-            <ul>${feedback.immediate.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
-            <h3>${escapeHTML(feedback.laterLabel)}</h3>
-            <ul>${feedback.later.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
-            <p class="feedback-result"><strong>${escapeHTML(t.p08.result)}:</strong> ${escapeHTML(feedback.result)}</p>
-            <p>${escapeHTML(feedback.reflection)}</p>
-          </div>
-          <div class="ending-video-wrap">
-            <div class="ending-video-head">${escapeHTML(t.p08.videoTitle)}</div>
-            <video class="ending-video" controls playsinline preload="metadata" data-ending-video data-decision="${decision}" aria-describedby="ending-video-note">
-              <source src="${escapeHTML(media)}" type="video/mp4">
-            </video>
-            <p id="ending-video-note" class="ending-video-note">${escapeHTML(endingMediaUnavailable ? t.p08.mediaUnavailable : t.p08.videoNote)}</p>
-          </div>
+        <div class="feedback-copy">
+          <h2 id="feedback-title">${escapeHTML(t.p08.recorded)}: ${escapeHTML(t.p08.choices.find(item => item.id === decision).title)}</h2>
+          <p>${escapeHTML(feedback.statement)}</p>
+          <h3>${escapeHTML(t.p08.immediate)}</h3>
+          <ul>${feedback.immediate.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+          <h3>${escapeHTML(feedback.laterLabel)}</h3>
+          <ul>${feedback.later.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+          <p class="feedback-result"><strong>${escapeHTML(t.p08.result)}:</strong> ${escapeHTML(feedback.result)}</p>
+          <p>${escapeHTML(feedback.reflection)}</p>
         </div>
         <div class="feedback-actions">
+          <button class="secondary-button" type="button" data-action="OPEN_ENDING_VIDEO">${icon('play')} ${escapeHTML(t.p08.replayVideo)}</button>
           <button class="secondary-button" type="button" data-action="RESELECT_DECISION">${icon('back')} ${escapeHTML(t.p08.review)}</button>
           <button class="primary-button" type="button" data-action="CLOSE_CASE">${escapeHTML(t.p08.closeCase)} ${icon('chevron')}</button>
         </div>
@@ -2568,12 +2891,16 @@
     function render(moveFocus = false) {
       clearTimeout(bootTimer);
       stopTypingSound();
+      if (state.currentScene !== 'P08' && (endingVideoOpen || !endingMediaLayer.hidden)) {
+        closeEndingVideo({ restoreFocus: false, animate: false });
+      }
       renderToken += 1;
       const renderer = RENDERERS[state.currentScene] || renderP00;
       document.documentElement.lang = state.language === 'zh' ? 'zh-CN' : 'en';
       document.title = state.language === 'zh' ? '滤镜之后 | 案件 001' : 'Behind the Filter | Case 001';
       app.innerHTML = renderer();
       renderModal();
+      renderEndingMediaWindow();
       if (state.currentScene === 'P00') {
         startBootSequence(renderToken);
       }
@@ -2684,8 +3011,35 @@
       const video = event.target.closest?.('[data-ending-video]');
       if (!video) return;
       endingMediaUnavailable = true;
-      const note = document.getElementById('ending-video-note');
-      if (note) note.textContent = copy().p08.mediaUnavailable;
+      endingVideoStatus = 'error';
+      updateEndingMediaChrome();
+    }, true);
+
+    document.addEventListener('play', event => {
+      const video = event.target.closest?.('[data-ending-video]');
+      if (!video || !endingVideoOpen) return;
+      endingVideoMuted = video.muted || video.volume === 0;
+      setEndingVideoStatus(endingVideoMuted ? 'muted' : 'playing');
+    }, true);
+
+    document.addEventListener('pause', event => {
+      const video = event.target.closest?.('[data-ending-video]');
+      if (!video || !endingVideoOpen || video.ended) return;
+      setEndingVideoStatus('paused');
+    }, true);
+
+    document.addEventListener('ended', event => {
+      const video = event.target.closest?.('[data-ending-video]');
+      if (!video || !endingVideoOpen) return;
+      setEndingVideoStatus('ended');
+    }, true);
+
+    document.addEventListener('volumechange', event => {
+      const video = event.target.closest?.('[data-ending-video]');
+      if (!video || !endingVideoOpen) return;
+      endingVideoMuted = video.muted || video.volume === 0;
+      if (!video.paused && !video.ended) endingVideoStatus = endingVideoMuted ? 'muted' : 'playing';
+      updateEndingMediaChrome();
     }, true);
 
     window.addEventListener('resize', () => {
@@ -2704,7 +3058,10 @@
     });
 
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && activeModal) closeModal(true);
+      if (event.key === 'Escape') {
+        if (activeModal) closeModal(true);
+        else if (endingVideoOpen) closeEndingVideo();
+      }
       if (event.key === 'Tab' && activeModal) {
         const focusable = [...dialogBackdrop.querySelectorAll('button:not([disabled])')];
         if (!focusable.length) return;
