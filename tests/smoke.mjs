@@ -17,7 +17,7 @@ fs.mkdirSync(artifacts, { recursive: true });
 assert.equal(htmlSource.includes('AudioContext'), false, 'The build should not depend on Web Audio.');
 assert.ok((htmlSource.match(/<video\b/gi) || []).length >= 2, 'Archive and ending video players should be present.');
 const mediaReferences = [...htmlSource.matchAll(/(?:\.\/)?materials\/(?:sound|videos)\/[^"'()<>\s]+/gi)].map(match => decodeURIComponent(match[0].replace(/^\.\//, '')));
-assert.ok(mediaReferences.length >= 7, 'Expected local sound, archive, and ending media references.');
+assert.ok(mediaReferences.length >= 10, 'Expected local sound, BGM, opening, archive, and ending media references.');
 for (const reference of new Set(mediaReferences)) {
   assert.equal(fs.existsSync(path.resolve(reference)), true, `Missing local media asset: ${reference}`);
 }
@@ -106,10 +106,17 @@ async function activatePage() {
   await delay(100);
 }
 
-async function snapshot(scene, width, height, { endingWindow = false } = {}) {
+async function activateByKeyboard() {
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65 });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65 });
+  await delay(100);
+}
+
+async function snapshot(scene, width, height, { endingWindow = false, focusSelector = null, label = null } = {}) {
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 600 });
   await evaluate(`dispatch('NAVIGATE', { scene: ${JSON.stringify(scene)} })`);
   if (endingWindow) await evaluate(`dispatch('OPEN_ENDING_VIDEO')`);
+  if (focusSelector) await evaluate(`document.querySelector(${JSON.stringify(focusSelector)})?.scrollIntoView({ block: 'center', behavior: 'auto' })`);
   await evaluate(`liveStatus.classList.remove('is-visible')`);
   await delay(endingWindow ? 280 : 180);
   const layout = await evaluate(`({
@@ -123,7 +130,7 @@ async function snapshot(scene, width, height, { endingWindow = false } = {}) {
   assert.ok(layout.scrollWidth <= layout.viewport, `${scene} has horizontal overflow at ${width}px: ${JSON.stringify(layout.overflowingElements)}`);
   assert.deepEqual(layout.overflowingButtons, [], `${scene} has overflowing button labels at ${width}px`);
   const image = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const filename = `${scene}${endingWindow ? '-video-window' : ''}-${width}x${height}.png`;
+  const filename = `${scene}${endingWindow ? '-video-window' : label ? `-${label}` : ''}-${width}x${height}.png`;
   fs.writeFileSync(path.join(artifacts, filename), Buffer.from(image.data, 'base64'));
   if (endingWindow) await evaluate(`closeEndingVideo({ restoreFocus: false, animate: false })`);
   return filename;
@@ -134,47 +141,111 @@ try {
   await send('Page.enable');
   await delay(400);
 
-  const initial = await evaluate(`({ scene: state.currentScene, evidence: state.evidence, version: state.version, prompt: document.getElementById('boot-copy').textContent, audioPaused: [typingSound.paused, mailHeartbeatSound.paused, buttonClickSound.paused], external: [...document.querySelectorAll('[src],[href]')].map(element => element.src || element.href).filter(value => /^https?:/.test(value)) })`);
+  const initial = await evaluate(`({ scene: state.currentScene, evidence: state.evidence, version: state.version, bgmEnabled: state.bgmEnabled, prompt: document.getElementById('boot-copy').textContent, audioPaused: [typingSound.paused, mailHeartbeatSound.paused, buttonClickSound.paused, backgroundMusic.glitch.paused, backgroundMusic.hardcore.paused], external: [...document.querySelectorAll('[src],[href]')].map(element => element.src || element.href).filter(value => /^https?:/.test(value)) })`);
   assert.equal(initial.scene, 'P00');
   assert.equal(initial.version, 3);
   assert.deepEqual(initial.evidence, []);
   assert.equal(initial.prompt.includes('CLICK ANYWHERE TO INITIALIZE'), true);
-  assert.deepEqual(initial.audioPaused, [true, true, true]);
+  assert.equal(initial.bgmEnabled, true);
+  assert.deepEqual(initial.audioPaused, [true, true, true, true, true]);
   assert.deepEqual(initial.external, []);
 
   await evaluate(`localStorage.setItem('behind-the-filter.case001.v1', JSON.stringify({ version: 1, language: 'zh', currentScene: 'P03', maxUnlockedScene: 'P04', evidence: ['A', 'E'], replyChoice: 1, replySent: true, openingSeen: true }))`);
   await send('Page.reload', { ignoreCache: true });
   await delay(500);
-  const migratedV1 = await evaluate(`({ version: state.version, language: state.language, scene: state.currentScene, maxScene: state.maxUnlockedScene, evidence: state.evidence, replySent: state.replySent, v3Stored: Boolean(localStorage.getItem('behind-the-filter.case001.v3')) })`);
+  const migratedV1 = await evaluate(`({ version: state.version, language: state.language, scene: state.currentScene, maxScene: state.maxUnlockedScene, evidence: state.evidence, replySent: state.replySent, bgmEnabled: state.bgmEnabled, v3Stored: Boolean(localStorage.getItem('behind-the-filter.case001.v3')) })`);
   assert.equal(migratedV1.version, 3);
   assert.equal(migratedV1.language, 'zh');
   assert.equal(migratedV1.scene, 'P03');
   assert.equal(migratedV1.maxScene, 'P04');
   assert.deepEqual(migratedV1.evidence, ['A', 'E']);
   assert.equal(migratedV1.replySent, true);
+  assert.equal(migratedV1.bgmEnabled, true);
   assert.equal(migratedV1.v3Stored, true);
   await evaluate(`dispatch('CONFIRM_RESET')`);
 
   await evaluate(`localStorage.setItem('behind-the-filter.case001.v2', JSON.stringify({ version: 2, language: 'en', currentScene: 'P06', maxUnlockedScene: 'P07', evidence: ['A', 'B', 'C', 'D', 'E'], selectedSearchQuery: 'festival', visitedQueries: ['maya', 'festival'], archiveRecordInspected: true, uploaderAnalysisOpened: true, openingSeen: true }))`);
   await send('Page.reload', { ignoreCache: true });
   await delay(500);
-  const migratedV2 = await evaluate(`({ version: state.version, scene: state.currentScene, maxScene: state.maxUnlockedScene, evidence: state.evidence, inspected: state.archiveRecordInspected, analyzed: state.uploaderAnalysisOpened, v3Stored: Boolean(localStorage.getItem('behind-the-filter.case001.v3')) })`);
+  const migratedV2 = await evaluate(`({ version: state.version, scene: state.currentScene, maxScene: state.maxUnlockedScene, evidence: state.evidence, inspected: state.archiveRecordInspected, analyzed: state.uploaderAnalysisOpened, bgmEnabled: state.bgmEnabled, v3Stored: Boolean(localStorage.getItem('behind-the-filter.case001.v3')) })`);
   assert.equal(migratedV2.version, 3);
   assert.equal(migratedV2.scene, 'P06');
   assert.equal(migratedV2.maxScene, 'P07');
   assert.deepEqual(migratedV2.evidence, ['A', 'B', 'C', 'D', 'E']);
   assert.equal(migratedV2.inspected, true);
   assert.equal(migratedV2.analyzed, true);
+  assert.equal(migratedV2.bgmEnabled, true);
   assert.equal(migratedV2.v3Stored, true);
   await evaluate(`dispatch('CONFIRM_RESET')`);
 
   assert.equal(await evaluate(`document.getElementById('boot-copy').textContent.includes('CLICK ANYWHERE TO INITIALIZE')`), true);
+  await evaluate(`(() => {
+    window.__originalBgmPlay = HTMLMediaElement.prototype.play;
+    window.__rejectBgmPlay = true;
+    window.__bgmPlayAttempts = 0;
+    HTMLMediaElement.prototype.play = function() {
+      if (Object.values(backgroundMusic).includes(this)) {
+        window.__bgmPlayAttempts += 1;
+        if (window.__rejectBgmPlay) return Promise.reject(new DOMException('BGM blocked', 'NotAllowedError'));
+      }
+      return window.__originalBgmPlay.call(this);
+    };
+  })()`);
+  await activateByKeyboard();
+  await delay(180);
+  const rejectedBgm = await evaluate(`({ attempts: window.__bgmPlayAttempts, paused: backgroundMusic.glitch.paused, unlocked: bgmUnlocked })`);
+  assert.ok(rejectedBgm.attempts >= 1);
+  assert.equal(rejectedBgm.paused, true);
+  assert.equal(rejectedBgm.unlocked, true);
+  await evaluate(`window.__rejectBgmPlay = false`);
   await activatePage();
   await delay(5600);
   assert.equal(await evaluate(`!document.getElementById('boot-action').hidden`), true, 'P00 enter control should appear after activation and typing.');
+  const openingBgm = await evaluate(`({ key: activeBgmKey, paused: backgroundMusic.glitch.paused, volume: backgroundMusic.glitch.volume, hardcorePaused: backgroundMusic.hardcore.paused })`);
+  assert.equal(openingBgm.key, 'glitch');
+  assert.equal(openingBgm.paused, false);
+  assert.ok(Math.abs(openingBgm.volume - 0.07) < 0.002);
+  assert.equal(openingBgm.hardcorePaused, true);
+
+  await click('[data-action="TOGGLE_BGM"]');
+  await delay(500);
+  const bgmDisabled = await evaluate(`({ enabled: state.bgmEnabled, stored: JSON.parse(localStorage.getItem('behind-the-filter.case001.v3')).bgmEnabled, paused: Object.values(backgroundMusic).every(audio => audio.paused), buttonPressed: document.querySelector('[data-action="TOGGLE_BGM"]').getAttribute('aria-pressed') })`);
+  assert.equal(bgmDisabled.enabled, false);
+  assert.equal(bgmDisabled.stored, false);
+  assert.equal(bgmDisabled.paused, true);
+  assert.equal(bgmDisabled.buttonPressed, 'false');
+  await click('[data-action="TOGGLE_BGM"]');
+  await delay(700);
+  assert.equal(await evaluate(`state.bgmEnabled && !backgroundMusic.glitch.paused`), true);
+
   await click('[data-action="ENTER_SYSTEM"]');
+  const p01Video = await evaluate(`(() => { const video = document.querySelector('.case-preview-video'); return { src: video.querySelector('source').getAttribute('src'), autoplay: video.autoplay, muted: video.muted, loop: video.loop, controls: video.controls, playsInline: video.playsInline }; })()`);
+  assert.equal(p01Video.src, 'materials/videos/sw1.mp4');
+  assert.equal(p01Video.autoplay, true);
+  assert.equal(p01Video.muted, true);
+  assert.equal(p01Video.loop, true);
+  assert.equal(p01Video.controls, true);
+  assert.equal(p01Video.playsInline, true);
   await click('[data-action="START_CASE"]');
   assert.equal(await evaluate('state.currentScene'), 'P02');
+  const p02Video = await evaluate(`(() => { const video = document.querySelector('.attachment-video'); return { src: video.querySelector('source').getAttribute('src'), autoplay: video.autoplay, loop: video.loop, controls: video.controls, playsInline: video.playsInline, paused: video.paused }; })()`);
+  assert.equal(p02Video.src, 'materials/videos/sw1.mp4');
+  assert.equal(p02Video.autoplay, false);
+  assert.equal(p02Video.loop, false);
+  assert.equal(p02Video.controls, true);
+  assert.equal(p02Video.playsInline, true);
+  assert.equal(p02Video.paused, true);
+  await evaluate(`document.querySelector('.attachment-video').play()`);
+  await delay(550);
+  const foregroundSuppression = await evaluate(`({ foreground: activeForegroundMedia.size, bgmPaused: backgroundMusic.glitch.paused, bgmVolume: backgroundMusic.glitch.volume, heartbeatPaused: mailHeartbeatSound.paused })`);
+  assert.equal(foregroundSuppression.foreground, 1);
+  assert.equal(foregroundSuppression.bgmPaused, true);
+  assert.equal(foregroundSuppression.bgmVolume, 0);
+  assert.equal(foregroundSuppression.heartbeatPaused, true);
+  await evaluate(`document.querySelector('.attachment-video').pause()`);
+  await delay(450);
+  assert.equal(await evaluate(`activeForegroundMedia.size === 0 && !backgroundMusic.glitch.paused && Math.abs(backgroundMusic.glitch.volume - 0.07) < 0.002`), true);
+  await evaluate(`HTMLMediaElement.prototype.play = window.__originalBgmPlay`);
 
   await click('[data-action="OPEN_REPLY"]');
   await click('input[name="reply-choice"][value="1"]');
@@ -191,6 +262,12 @@ try {
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="A"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="UNLOCK_SEARCH"]');
+  await delay(700);
+  const investigationBgm = await evaluate(`({ key: activeBgmKey, glitchPaused: backgroundMusic.glitch.paused, hardcorePaused: backgroundMusic.hardcore.paused, volume: backgroundMusic.hardcore.volume })`);
+  assert.equal(investigationBgm.key, 'hardcore');
+  assert.equal(investigationBgm.glitchPaused, true);
+  assert.equal(investigationBgm.hardcorePaused, false);
+  assert.ok(Math.abs(investigationBgm.volume - 0.055) < 0.002);
 
   for (const query of ['uploader', 'headline', 'police']) {
     await click(`[data-action="SELECT_SEARCH_QUERY"][data-query="${query}"]`);
@@ -249,6 +326,8 @@ try {
   await click('[data-action="OPEN_DECISION"]');
   assert.equal(await evaluate('state.currentScene'), 'P08');
   assert.equal(await evaluate(`document.querySelector('[data-decision="FLAG_MANIPULATED"]').disabled`), false);
+  await delay(400);
+  assert.equal(await evaluate(`activeBgmKey === 'hardcore' && !backgroundMusic.hardcore.paused && Math.abs(backgroundMusic.hardcore.volume - 0.045) < 0.002`), true);
 
   await evaluate(`(() => {
     window.__endingPlayMode = 'resolve';
@@ -352,9 +431,18 @@ try {
   assert.equal(restoredDecision.hasVideo, false);
   assert.equal(restoredDecision.hasReplay, true);
 
+  await activatePage();
   await click('[data-action="CLOSE_CASE"]');
   assert.equal(await evaluate('state.currentScene'), 'P09');
   assert.equal(await evaluate('state.caseClosed'), true);
+  await delay(700);
+  assert.equal(await evaluate(`activeBgmKey === 'glitch' && !backgroundMusic.glitch.paused && Math.abs(backgroundMusic.glitch.volume - 0.035) < 0.002 && backgroundMusic.hardcore.paused`), true);
+  await evaluate(`Object.defineProperty(document, 'hidden', { configurable: true, value: true }); document.dispatchEvent(new Event('visibilitychange'))`);
+  assert.equal(await evaluate(`Object.values(backgroundMusic).every(audio => audio.paused && audio.volume === 0)`), true);
+  await evaluate(`Object.defineProperty(document, 'hidden', { configurable: true, value: false }); document.dispatchEvent(new Event('visibilitychange'))`);
+  await delay(700);
+  assert.equal(await evaluate(`!backgroundMusic.glitch.paused && Math.abs(backgroundMusic.glitch.volume - 0.035) < 0.002`), true);
+  await evaluate(`delete document.hidden`);
   assert.equal(await evaluate(`document.querySelector('.ending-copy').textContent.includes("Maya Lin's face was real")`), true);
   await click('[data-action="REVEAL_ENDING"]');
   assert.equal(await evaluate('state.endingRevealed'), true);
@@ -391,6 +479,7 @@ try {
   const screenshots = [];
   for (const [width, height] of [[1440, 900], [1024, 768], [390, 844]]) {
     for (const scene of ['P00', 'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09']) screenshots.push(await snapshot(scene, width, height));
+    screenshots.push(await snapshot('P02', width, height, { focusSelector: '.attachment', label: 'attachment' }));
     screenshots.push(await snapshot('P08', width, height, { endingWindow: true }));
   }
 
@@ -414,10 +503,11 @@ try {
 
   await evaluate(`dispatch('OPEN_RESET')`);
   await click('[data-action="CONFIRM_RESET"]');
-  const reset = await evaluate(`({ scene: state.currentScene, evidence: state.evidence, language: state.language, v1: localStorage.getItem('behind-the-filter.case001.v1'), v2: localStorage.getItem('behind-the-filter.case001.v2'), v3: localStorage.getItem('behind-the-filter.case001.v3') })`);
+  const reset = await evaluate(`({ scene: state.currentScene, evidence: state.evidence, language: state.language, bgmEnabled: state.bgmEnabled, v1: localStorage.getItem('behind-the-filter.case001.v1'), v2: localStorage.getItem('behind-the-filter.case001.v2'), v3: localStorage.getItem('behind-the-filter.case001.v3') })`);
   assert.equal(reset.scene, 'P00');
   assert.deepEqual(reset.evidence, []);
   assert.equal(reset.language, 'en');
+  assert.equal(reset.bgmEnabled, true);
   assert.equal(reset.v1, null);
   assert.equal(reset.v2, null);
   assert.equal(reset.v3, null);

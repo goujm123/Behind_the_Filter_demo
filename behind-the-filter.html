@@ -412,6 +412,14 @@
 
     .player-progress { height: 5px; flex: 1; border: 1px solid #4f565e; background: #05070a; }
     .player-progress span { display: block; width: 0; height: 100%; background: var(--blue); transition: width .6s linear; }
+    .case-preview-video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #505964;
+      background: #000;
+      object-fit: cover;
+    }
 
     .viral-still {
       position: relative;
@@ -470,14 +478,22 @@
     .mail-body p { margin: 0 0 16px; }
     .mail-body .signature { font-family: var(--mono); }
     .attachment {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      display: grid;
+      gap: 12px;
       margin-top: 24px;
       padding: 12px;
       border: 1px solid #485469;
       background: #071226;
+    }
+    .attachment-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .attachment-video-label { color: var(--blue-pale); font-family: var(--mono); font-size: 12px; }
+    .attachment-video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #455570;
+      background: #000;
+      object-fit: cover;
     }
 
     .reply-box { margin: 0 14px 14px; padding: 16px; border: 1px solid #4a5870; background: #09111d; }
@@ -944,7 +960,7 @@
     .ending-copy { min-height: 430px; color: #e9edf2; white-space: pre-line; line-height: 1.7; }
     .ending-copy strong { color: var(--green); }
     .ending-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
-    .ending-language { position: absolute; top: 18px; right: 18px; }
+    .ending-controls { position: absolute; top: 18px; right: 18px; display: flex; gap: 8px; }
 
     /* Dialog and live status */
     .dialog-backdrop {
@@ -1034,14 +1050,15 @@
     @media (max-width: 560px) {
       .topbar { display: grid; grid-template-columns: auto 1fr; align-items: start; }
       .top-actions {
-        width: 174px;
+        width: 224px;
         display: grid;
-        grid-template-columns: minmax(110px, 1fr) 42px;
+        grid-template-columns: minmax(110px, 1fr) 42px 42px;
         justify-self: end;
       }
       .top-actions .evidence-counter { grid-column: 1 / -1; grid-row: 2; min-height: 30px; justify-content: center; padding: 4px 7px; font-size: 12px; }
       .top-actions [data-action="TOGGLE_LANGUAGE"] { grid-column: 1; grid-row: 1; width: auto; }
-      .top-actions [data-action="OPEN_RESET"] { grid-column: 2; grid-row: 1; }
+      .top-actions [data-action="TOGGLE_BGM"] { grid-column: 2; grid-row: 1; }
+      .top-actions [data-action="OPEN_RESET"] { grid-column: 3; grid-row: 1; }
       .home-title { font-size: 52px; }
       .home-stat { font-size: 16px; }
       .home-stat strong { display: block; font-size: 26px; }
@@ -1054,7 +1071,7 @@
       .footer-cell:last-child { border-bottom: 0; }
       .mail-toolbar, .post-actions, .reply-actions { display: grid; grid-template-columns: 1fr; }
       .mail-body { padding: 17px; font-size: 15px; }
-      .attachment { align-items: stretch; flex-direction: column; }
+      .attachment-head { align-items: stretch; flex-direction: column; }
       .post-account { align-items: flex-start; flex-wrap: wrap; }
       .page-main .post-follow { width: auto; margin-left: 56px; }
       .new-account { display: block; width: fit-content; margin: 5px 0 0; }
@@ -1099,6 +1116,11 @@
       .ending-media-foot { align-items: flex-start; flex-direction: column; }
       .ending-terminal { padding: 28px 18px; }
       .ending-copy { min-height: 520px; font-size: 13px; }
+    }
+
+    @media (max-width: 360px) {
+      .topbar { grid-template-columns: 1fr; }
+      .top-actions { width: 100%; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1177,6 +1199,22 @@
       VERIFY_FURTHER: 'materials/videos/ed2.mp4',
       FLAG_MANIPULATED: 'materials/videos/ed3.mp4'
     });
+    const BGM_TRACKS = Object.freeze({
+      glitch: 'materials/sound/bgm/glitch故障感bgm.wav',
+      hardcore: 'materials/sound/bgm/硬核bgm.wav'
+    });
+    const SCENE_BGM = Object.freeze({
+      P00: { track: 'glitch', volume: 0.07 },
+      P01: { track: 'glitch', volume: 0.07 },
+      P02: { track: 'glitch', volume: 0.07 },
+      P03: { track: 'glitch', volume: 0.07 },
+      P04: { track: 'hardcore', volume: 0.055 },
+      P05: { track: 'hardcore', volume: 0.055 },
+      P06: { track: 'hardcore', volume: 0.055 },
+      P07: { track: 'hardcore', volume: 0.055 },
+      P08: { track: 'hardcore', volume: 0.045 },
+      P09: { track: 'glitch', volume: 0.035 }
+    });
 
     const DEFAULT_STATE = Object.freeze({
       version: 3,
@@ -1196,14 +1234,15 @@
       frameAnalysisInspected: false,
       finalDecision: null,
       caseClosed: false,
-      endingRevealed: false
+      endingRevealed: false,
+      bgmEnabled: true
     });
 
     const COPY = {
       en: {
         global: {
           product: 'TRACE', lab: 'Youth Digital Verification Lab', caseActive: 'CASE 001 ACTIVE',
-          language: 'Switch to Chinese', reset: 'Reset investigation',
+          language: 'Switch to Chinese', reset: 'Reset investigation', musicOn: 'Mute background music', musicOff: 'Enable background music', musicEnabled: 'Background music enabled.', musicDisabled: 'Background music muted.',
           evidence: 'TRACE NOTES', objective: 'OBJECTIVE:', objectiveText: 'Uncover the truth behind the unseen.',
           approach: 'APPROACH:', approachText: 'Verify. Cross-check. Connect the dots.', analyst: 'USER: ANALYST_07',
           system: 'TRACE SYSTEM v1.0', fictional: 'Fictional narrative for MIL learning.',
@@ -1218,7 +1257,7 @@
           caseNumber: 'CASE 001', kicker: '2.8 MILLION VIEWS. ZERO VERIFIED SOURCES.',
           title: 'SHE NEVER\nPOSTED IT.', statNumber: '2,803,119', statLabel: 'people saw the video.',
           desc: 'None of them asked where it came from.', start: 'START INVESTIGATION', closed: 'CLOSED', review: 'REVIEW CASE',
-          file: 'VID_2026_08_13_20_15_00.MP4', reconstruction: 'STATIC EVIDENCE PREVIEW'
+          file: 'VID_2026_08_13_20_15_00.MP4', reconstruction: 'PUBLIC LIVESTREAM REFERENCE', videoUnsupported: 'Your browser cannot play this reference video.'
         },
         p02: {
           page: 'PAGE 01', title: 'URGENT MAIL', subtitle: 'Mail / Urgent Message', mailbox: 'MAILBOX',
@@ -1236,7 +1275,7 @@
             'She is not a public figure. She is just a student who streams sometimes. She does not deserve this.'
           ],
           signature: '- Aria\nNorthbridge University', attached: 'ATTACHED FEED LINK:',
-          attachmentName: 'publicfeed.net/post/truthseeker_99_leak', openPost: 'VIEW VIRAL POST',
+          attachmentName: 'publicfeed.net/post/truthseeker_99_leak', videoPreview: 'ATTACHED REFERENCE CLIP', videoUnsupported: 'Your browser cannot play this attached video.', openPost: 'VIEW VIRAL POST',
           replyTitle: 'Select a response:',
           replyOptions: ['I am on it. Do not share the video link with anyone else.', 'I need more information. When did Maya first see the video?'],
           send: 'Send', replySent: 'Message sent. Aria is offline.', evidenceSaved: 'Creator statement saved to TRACE Notes.'
@@ -1377,7 +1416,7 @@
       zh: {
         global: {
           product: 'TRACE', lab: '青年数字核查实验室', caseActive: '案件 001 进行中',
-          language: '切换至英文', reset: '重置调查',
+          language: '切换至英文', reset: '重置调查', musicOn: '关闭背景音乐', musicOff: '开启背景音乐', musicEnabled: '背景音乐已开启。', musicDisabled: '背景音乐已静音。',
           evidence: 'TRACE 笔记', objective: '目标：', objectiveText: '揭示未见之物背后的真相。',
           approach: '方法：', approachText: '核实。交叉比对。连接线索。', analyst: '用户：ANALYST_07',
           system: 'TRACE 系统 v1.0', fictional: '用于媒介与信息素养学习的虚构叙事。',
@@ -1392,7 +1431,7 @@
           caseNumber: '案件 001', kicker: '280 万次观看。零个已核实来源。',
           title: '她从未\n发布过。', statNumber: '2,803,119', statLabel: '人看过这段视频。',
           desc: '但没有一个人问过它来自哪里。', start: '开始调查', closed: '已结案', review: '回顾案件',
-          file: '视频_2026_08_13_20_15_00.MP4', reconstruction: '静态证据预览'
+          file: '视频_2026_08_13_20_15_00.MP4', reconstruction: '公开直播参考画面', videoUnsupported: '你的浏览器无法播放这段参考视频。'
         },
         p02: {
           page: '第 01 页', title: '紧急邮件', subtitle: '邮件 / 紧急消息', mailbox: '邮箱',
@@ -1410,7 +1449,7 @@
             '她不是公众人物。她只是一个偶尔直播的学生。她不应该遭受这些。'
           ],
           signature: '- Aria\nNorthbridge 大学', attached: '附带链接：',
-          attachmentName: 'publicfeed.net/post/truthseeker_99_leak', openPost: '查看爆料帖子',
+          attachmentName: 'publicfeed.net/post/truthseeker_99_leak', videoPreview: '附带参考片段', videoUnsupported: '你的浏览器无法播放这段附件视频。', openPost: '查看爆料帖子',
           replyTitle: '选择一条回复：',
           replyOptions: ['我正在处理。请不要把视频链接分享给任何其他人。', '我需要更多信息。Maya 是什么时候第一次看到这段视频的？'],
           send: '发送', replySent: '消息已发送。Aria 离线。', evidenceSaved: '创作者声明已保存至 TRACE 笔记。'
@@ -1570,6 +1609,10 @@
     let renderToken = 0;
     let bootTimer = null;
     let toastTimer = null;
+    let bgmUnlocked = Boolean(navigator.userActivation?.hasBeenActive);
+    let activeBgmKey = null;
+    const activeForegroundMedia = new Set();
+    const bgmFadeTokens = { glitch: 0, hardcore: 0 };
 
     const app = document.getElementById('app');
     const dialogBackdrop = document.getElementById('dialog-backdrop');
@@ -1629,7 +1672,8 @@
           frameAnalysisInspected: Boolean(raw.frameAnalysisInspected),
           finalDecision,
           caseClosed: Boolean(raw.caseClosed),
-          endingRevealed: Boolean(raw.endingRevealed)
+          endingRevealed: Boolean(raw.endingRevealed),
+          bgmEnabled: raw.bgmEnabled !== false
         };
       } catch (error) {
         return { ...DEFAULT_STATE };
@@ -1773,7 +1817,7 @@
               </div>
             </header>
             <div class="ending-media-stage">
-              <video class="ending-video" controls playsinline preload="auto" data-ending-video data-decision="${escapeHTML(endingVideoDecision)}" aria-describedby="ending-video-note">
+              <video class="ending-video" controls playsinline preload="auto" data-ending-video data-foreground-media="ending-consequence" data-decision="${escapeHTML(endingVideoDecision)}" aria-describedby="ending-video-note">
                 <source src="${escapeHTML(ENDING_MEDIA[endingVideoDecision])}" type="video/mp4">
               </video>
               <button class="ending-play-prompt" type="button" data-action="RETRY_ENDING_VIDEO" hidden></button>
@@ -1926,6 +1970,15 @@
           render(false);
           announce(state.language === 'en' ? 'Language switched to English.' : '语言已切换至中文。');
           break;
+        case 'TOGGLE_BGM': {
+          state.bgmEnabled = !state.bgmEnabled;
+          bgmUnlocked = true;
+          saveState();
+          syncBackgroundMusic();
+          updateBgmButtons();
+          announce(state.bgmEnabled ? copy().global.musicEnabled : copy().global.musicDisabled);
+          break;
+        }
         case 'OPEN_REPLY':
           replyOpen = true;
           render(false);
@@ -2248,6 +2301,107 @@
       if (restoreFocus && lastFocus instanceof HTMLElement && document.contains(lastFocus)) lastFocus.focus();
     }
 
+    const backgroundMusic = Object.fromEntries(Object.entries(BGM_TRACKS).map(([key, source]) => {
+      const audio = new Audio(`./${source}`);
+      audio.preload = 'auto';
+      audio.loop = true;
+      audio.volume = 0;
+      return [key, audio];
+    }));
+
+    function cleanForegroundMedia() {
+      activeForegroundMedia.forEach(media => {
+        if (!media.isConnected || media.paused || media.ended || media.muted || media.volume === 0) activeForegroundMedia.delete(media);
+      });
+    }
+
+    function hasForegroundAudio() {
+      cleanForegroundMedia();
+      return activeForegroundMedia.size > 0;
+    }
+
+    function stopBgmFade(key) {
+      bgmFadeTokens[key] += 1;
+    }
+
+    function fadeBackgroundMusic(key, targetVolume, duration = 600, pauseWhenSilent = false) {
+      const audio = backgroundMusic[key];
+      if (!audio) return;
+      const token = ++bgmFadeTokens[key];
+      const startVolume = audio.volume;
+      const startedAt = performance.now();
+      const target = Math.max(0, Math.min(1, targetVolume));
+
+      if (target > 0 && audio.paused) {
+        audio.play().catch(() => {
+          if (token === bgmFadeTokens[key]) audio.volume = 0;
+        });
+      }
+
+      const step = now => {
+        if (token !== bgmFadeTokens[key]) return;
+        const progress = duration <= 0 ? 1 : Math.max(0, Math.min(1, (now - startedAt) / duration));
+        audio.volume = startVolume + (target - startVolume) * progress;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+          return;
+        }
+        audio.volume = target;
+        if (pauseWhenSilent && target === 0) audio.pause();
+      };
+      requestAnimationFrame(step);
+    }
+
+    function pauseAllBackgroundMusic() {
+      Object.entries(backgroundMusic).forEach(([key, audio]) => {
+        stopBgmFade(key);
+        audio.pause();
+        audio.volume = 0;
+      });
+    }
+
+    function syncBackgroundMusic({ restart = false } = {}) {
+      const config = SCENE_BGM[state.currentScene];
+      if (!config) {
+        pauseAllBackgroundMusic();
+        activeBgmKey = null;
+        return;
+      }
+
+      if (!state.bgmEnabled || !bgmUnlocked || document.hidden || hasForegroundAudio()) {
+        Object.keys(backgroundMusic).forEach(key => fadeBackgroundMusic(key, 0, 400, true));
+        return;
+      }
+
+      const changedTrack = activeBgmKey !== config.track;
+      Object.keys(backgroundMusic).forEach(key => {
+        if (key !== config.track) fadeBackgroundMusic(key, 0, 600, true);
+      });
+
+      const targetAudio = backgroundMusic[config.track];
+      if (changedTrack || restart) {
+        stopBgmFade(config.track);
+        targetAudio.pause();
+        targetAudio.currentTime = 0;
+        targetAudio.volume = 0;
+      }
+      activeBgmKey = config.track;
+      fadeBackgroundMusic(config.track, config.volume, changedTrack || restart ? 600 : 300);
+    }
+
+    function unlockBackgroundMusic() {
+      bgmUnlocked = true;
+      syncBackgroundMusic();
+    }
+
+    function updateForegroundMedia(media) {
+      if (!media) return;
+      const audible = !media.paused && !media.ended && !media.muted && media.volume > 0;
+      if (audible) activeForegroundMedia.add(media);
+      else activeForegroundMedia.delete(media);
+      syncBackgroundMusic();
+    }
+
     const typingSound = new Audio('./materials/sound/effects/打字声.wav');
     typingSound.preload = 'auto';
     typingSound.loop = true;
@@ -2306,6 +2460,23 @@
       closeButton.querySelector('.sr-only').textContent = copy().global.close;
     }
 
+    function renderBgmButton(className = 'tool-button') {
+      const g = copy().global;
+      const label = state.bgmEnabled ? g.musicOn : g.musicOff;
+      return `<button class="${className}" type="button" data-action="TOGGLE_BGM" title="${escapeHTML(label)}" aria-label="${escapeHTML(label)}" aria-pressed="${state.bgmEnabled}">${icon(state.bgmEnabled ? 'volume' : 'volume-x')}</button>`;
+    }
+
+    function updateBgmButtons() {
+      const g = copy().global;
+      const label = state.bgmEnabled ? g.musicOn : g.musicOff;
+      document.querySelectorAll('[data-action="TOGGLE_BGM"]').forEach(button => {
+        button.title = label;
+        button.setAttribute('aria-label', label);
+        button.setAttribute('aria-pressed', state.bgmEnabled);
+        button.innerHTML = icon(state.bgmEnabled ? 'volume' : 'volume-x');
+      });
+    }
+
     function renderHeader() {
       const t = copy();
       return `
@@ -2318,6 +2489,7 @@
           <div class="top-actions">
             <span class="evidence-counter">${icon('save')} ${escapeHTML(t.global.evidence)} <strong>${state.evidence.length}/6</strong></span>
             <button class="text-button" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
+            ${renderBgmButton()}
             <button class="tool-button" type="button" data-action="OPEN_RESET" title="${escapeHTML(t.global.reset)}" aria-label="${escapeHTML(t.global.reset)}">${icon('reset')}</button>
           </div>
         </header>`;
@@ -2340,6 +2512,7 @@
         <section class="boot-screen" aria-labelledby="boot-title">
           <div class="boot-controls">
             <button class="text-button" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
+            ${renderBgmButton()}
           </div>
           <div class="boot-terminal">
             <h1 id="boot-title" class="sr-only">${escapeHTML(t.p00.text)}</h1>
@@ -2368,7 +2541,10 @@
             </div>
             <div class="retro-player">
               <div class="player-titlebar"><span>${escapeHTML(t.p01.file)}</span><span>00:00:00:00</span></div>
-              <div class="viral-still"><span class="media-static-badge">${icon('eye')} ${escapeHTML(t.p01.reconstruction)}</span></div>
+              <video class="case-preview-video" controls autoplay muted loop playsinline preload="metadata" data-foreground-media="case-preview">
+                <source src="materials/videos/sw1.mp4" type="video/mp4">
+                ${escapeHTML(t.p01.videoUnsupported)}
+              </video>
               <div class="player-controls"><span>${escapeHTML(t.p01.reconstruction)}</span><div class="player-progress"><span></span></div><span>CASE 001</span></div>
             </div>
           </section>
@@ -2423,8 +2599,15 @@
                     ${t.p02.body.map(paragraph => `<p>${escapeHTML(paragraph)}</p>`).join('')}
                     <p class="signature">${escapeHTML(t.p02.signature).replace(/\n/g, '<br>')}</p>
                     <div class="attachment">
-                      <span>${icon('eye')} <strong>${escapeHTML(t.p02.attached)}</strong><br>${escapeHTML(t.p02.attachmentName)}</span>
-                      <button class="primary-button" type="button" data-action="OPEN_POST">${escapeHTML(t.p02.openPost)} ${icon('chevron')}</button>
+                      <div class="attachment-head">
+                        <span>${icon('eye')} <strong>${escapeHTML(t.p02.attached)}</strong><br>${escapeHTML(t.p02.attachmentName)}</span>
+                        <button class="primary-button" type="button" data-action="OPEN_POST">${escapeHTML(t.p02.openPost)} ${icon('chevron')}</button>
+                      </div>
+                      <span class="attachment-video-label">${escapeHTML(t.p02.videoPreview)}</span>
+                      <video class="attachment-video" controls playsinline preload="metadata" data-foreground-media="mail-attachment">
+                        <source src="materials/videos/sw1.mp4" type="video/mp4">
+                        ${escapeHTML(t.p02.videoUnsupported)}
+                      </video>
                     </div>
                   </div>
                 </article>
@@ -2606,7 +2789,7 @@
                       <div class="archive-frame-record">
                         <div class="archive-frame-label">${escapeHTML(t.p05.frameTitle)} // 00:23:17</div>
                         
-                        <video class="archive-frame-video" controls playsinline preload="metadata">
+                        <video class="archive-frame-video" controls playsinline preload="metadata" data-foreground-media="archive-record">
                           <source src="materials/videos/original-video.mp4" type="video/mp4">
                           Your browser does not support the video tag.
                         </video>
@@ -2848,7 +3031,10 @@
       const t = copy();
       const revealed = state.endingRevealed;
       return `<main class="ending-screen" aria-labelledby="scene-title">
-        <button class="text-button ending-language" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
+        <div class="ending-controls">
+          <button class="text-button" type="button" data-action="TOGGLE_LANGUAGE" title="${escapeHTML(t.global.language)}">${state.language === 'en' ? 'EN | 中文' : '中文 | EN'}</button>
+          ${renderBgmButton()}
+        </div>
         <section class="ending-terminal">
           <h1 id="scene-title" class="sr-only" tabindex="-1">${escapeHTML(revealed ? t.p09.playPart : t.p01.closed)}</h1>
           <div id="${revealed ? 'ending-final' : 'ending-intro'}" class="ending-copy" tabindex="-1">${escapeHTML(revealed ? t.p09.final : t.p09.intro)}</div>
@@ -2909,6 +3095,7 @@
       if (state.currentScene !== 'P02') {
         stopMailHeartbeat();
       }
+      syncBackgroundMusic();
 
       if (moveFocus) {
         window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -2979,6 +3166,8 @@
     const buttonClickSound = new Audio('./materials/sound/effects/鼠标单击声.mp3');
     buttonClickSound.preload = 'auto';
     buttonClickSound.volume = 0.6;
+
+    document.addEventListener('pointerdown', unlockBackgroundMusic, { passive: true });
     
     document.addEventListener('click', event => {
       // Play sound for every button click
@@ -3008,6 +3197,11 @@
     });
 
     document.addEventListener('error', event => {
+      const foregroundMedia = event.target.closest?.('[data-foreground-media]');
+      if (foregroundMedia) {
+        activeForegroundMedia.delete(foregroundMedia);
+        syncBackgroundMusic();
+      }
       const video = event.target.closest?.('[data-ending-video]');
       if (!video) return;
       endingMediaUnavailable = true;
@@ -3016,6 +3210,11 @@
     }, true);
 
     document.addEventListener('play', event => {
+      const foregroundMedia = event.target.closest?.('[data-foreground-media]');
+      if (foregroundMedia) {
+        updateForegroundMedia(foregroundMedia);
+        if (foregroundMedia.dataset.foregroundMedia === 'mail-attachment') stopMailHeartbeat();
+      }
       const video = event.target.closest?.('[data-ending-video]');
       if (!video || !endingVideoOpen) return;
       endingVideoMuted = video.muted || video.volume === 0;
@@ -3023,18 +3222,24 @@
     }, true);
 
     document.addEventListener('pause', event => {
+      const foregroundMedia = event.target.closest?.('[data-foreground-media]');
+      if (foregroundMedia) updateForegroundMedia(foregroundMedia);
       const video = event.target.closest?.('[data-ending-video]');
       if (!video || !endingVideoOpen || video.ended) return;
       setEndingVideoStatus('paused');
     }, true);
 
     document.addEventListener('ended', event => {
+      const foregroundMedia = event.target.closest?.('[data-foreground-media]');
+      if (foregroundMedia) updateForegroundMedia(foregroundMedia);
       const video = event.target.closest?.('[data-ending-video]');
       if (!video || !endingVideoOpen) return;
       setEndingVideoStatus('ended');
     }, true);
 
     document.addEventListener('volumechange', event => {
+      const foregroundMedia = event.target.closest?.('[data-foreground-media]');
+      if (foregroundMedia) updateForegroundMedia(foregroundMedia);
       const video = event.target.closest?.('[data-ending-video]');
       if (!video || !endingVideoOpen) return;
       endingVideoMuted = video.muted || video.volume === 0;
@@ -3044,6 +3249,11 @@
 
     window.addEventListener('resize', () => {
       if (state.currentScene === 'P07') drawEvidenceConnections();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pauseAllBackgroundMusic();
+      else syncBackgroundMusic();
     });
 
     document.addEventListener('change', event => {
@@ -3058,6 +3268,7 @@
     });
 
     document.addEventListener('keydown', event => {
+      if (!event.repeat) unlockBackgroundMusic();
       if (event.key === 'Escape') {
         if (activeModal) closeModal(true);
         else if (endingVideoOpen) closeEndingVideo();
