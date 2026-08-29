@@ -131,7 +131,7 @@ async function snapshot(scene, width, height, { endingArtWindow = false, focusSe
   if (endingArtWindow) await evaluate(`dispatch('OPEN_ENDING_ART')`);
   if (focusSelector) await evaluate(`document.querySelector(${JSON.stringify(focusSelector)})?.scrollIntoView({ block: 'center', behavior: 'auto' })`);
   await evaluate(`liveStatus.classList.remove('is-visible')`);
-  await delay(endingArtWindow ? 280 : 180);
+  await delay(endingArtWindow ? 650 : 180);
   const layout = await evaluate(`({
     scene: state.currentScene,
     viewport: document.documentElement.clientWidth,
@@ -232,17 +232,25 @@ try {
   assert.equal(await evaluate(`state.bgmEnabled && !backgroundMusic.glitch.paused`), true);
 
   await click('[data-action="ENTER_SYSTEM"]');
-  const p01Art = await evaluate(`(() => { const image = document.querySelector('.case-preview-art'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p01.artAlt, videoCount: document.querySelectorAll('video').length, controlsCount: document.querySelectorAll('[controls]').length, progressPresent: Boolean(document.querySelector('.player-progress')) }; })()`);
+  const p01Art = await evaluate(`(() => { const image = document.querySelector('.case-preview-art'); const motion = image.closest('.art-motion'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p01.artAlt, variant: motion.className, motionAnimation: getComputedStyle(motion).animationName, scanAnimation: getComputedStyle(motion, '::before').animationName, sweepAnimation: getComputedStyle(motion, '::after').animationName, videoCount: document.querySelectorAll('video').length, controlsCount: document.querySelectorAll('[controls]').length, progressPresent: Boolean(document.querySelector('.player-progress')) }; })()`);
   assert.equal(p01Art.src.endsWith('/事件插图/开头.PNG'), true);
   assert.equal(p01Art.alt, p01Art.expectedAlt);
+  assert.equal(p01Art.variant.includes('art-motion--signal'), true);
+  assert.equal(p01Art.motionAnimation, 'art-signal-breathe');
+  assert.equal(p01Art.scanAnimation, 'art-scan-drift');
+  assert.equal(p01Art.sweepAnimation, 'art-signal-sweep');
   assert.equal(p01Art.videoCount, 0);
   assert.equal(p01Art.controlsCount, 0);
   assert.equal(p01Art.progressPresent, false);
   await click('[data-action="START_CASE"]');
   assert.equal(await evaluate('state.currentScene'), 'P02');
-  const p02Art = await evaluate(`(() => { const image = document.querySelector('.attachment-art'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p02.artAlt, videoCount: document.querySelectorAll('video').length, bgmPaused: backgroundMusic.glitch.paused, bgmVolume: backgroundMusic.glitch.volume }; })()`);
+  const p02Art = await evaluate(`(() => { const image = document.querySelector('.attachment-art'); const motion = image.closest('.art-motion'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p02.artAlt, variant: motion.className, imageAnimation: getComputedStyle(image).animationName, scanAnimation: getComputedStyle(motion, '::before').animationName, sweepAnimation: getComputedStyle(motion, '::after').animationName, videoCount: document.querySelectorAll('video').length, bgmPaused: backgroundMusic.glitch.paused, bgmVolume: backgroundMusic.glitch.volume }; })()`);
   assert.equal(p02Art.src.endsWith('/事件插图/被换脸.PNG'), true);
   assert.equal(p02Art.alt, p02Art.expectedAlt);
+  assert.equal(p02Art.variant.includes('art-motion--glitch'), true);
+  assert.equal(p02Art.imageAnimation, 'art-pixel-jitter');
+  assert.equal(p02Art.scanAnimation, 'art-scan-drift');
+  assert.equal(p02Art.sweepAnimation, 'art-signal-sweep');
   assert.equal(p02Art.videoCount, 0);
   assert.equal(p02Art.bgmPaused, false);
   assert.ok(Math.abs(p02Art.bgmVolume - 0.07) < 0.002);
@@ -260,7 +268,11 @@ try {
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="E"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="OPEN_POST"]');
-  assert.equal(await evaluate(`decodeURI(getComputedStyle(document.querySelector('.viral-still')).backgroundImage).includes('/事件插图/被换脸.PNG')`), true);
+  const p03Art = await evaluate(`(() => { const motion = document.querySelector('.viral-still'); const image = motion.querySelector('.viral-still-image'); return { src: decodeURI(image.src), variant: motion.className, imageAnimation: getComputedStyle(image).animationName, badgeZ: getComputedStyle(motion.querySelector('.media-static-badge')).zIndex }; })()`);
+  assert.equal(p03Art.src.endsWith('/事件插图/被换脸.PNG'), true);
+  assert.equal(p03Art.variant.includes('art-motion--glitch'), true);
+  assert.equal(p03Art.imageAnimation, 'art-pixel-jitter');
+  assert.ok(Number(p03Art.badgeZ) > 2);
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="A"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="UNLOCK_SEARCH"]');
@@ -279,10 +291,19 @@ try {
   await click('[data-action="SELECT_SEARCH_QUERY"][data-query="festival"]');
   await click('[data-action="OPEN_SEARCH_RESULT"][data-query="festival"]');
   assert.equal(await evaluate(`decodeURI(document.querySelector('.archive-event-art img').src).endsWith('/事件插图/毕业.PNG')`), true);
+  const campusMotion = await evaluate(`(() => { const motion = document.querySelector('.archive-event-art .art-motion'); const image = motion.querySelector('.art-motion-image'); return { variant: motion.className, motionAnimation: getComputedStyle(motion).animationName, imageAnimation: getComputedStyle(image).animationName, scanAnimation: getComputedStyle(motion, '::before').animationName, sweepAnimation: getComputedStyle(motion, '::after').animationName }; })()`);
+  assert.equal(campusMotion.variant.includes('art-motion--archive'), true);
+  assert.equal(campusMotion.motionAnimation, 'none');
+  assert.equal(campusMotion.imageAnimation, 'none');
+  assert.equal(campusMotion.scanAnimation, 'art-scan-drift');
+  assert.equal(campusMotion.sweepAnimation, 'none');
   await click('[data-action="INSPECT_ARCHIVE"]');
-  const archiveArt = await evaluate(`(() => { const image = document.querySelector('.archive-frame-art'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p05.frameArtAlt, videoCount: document.querySelectorAll('video').length }; })()`);
+  const archiveArt = await evaluate(`(() => { const image = document.querySelector('.archive-frame-art'); const motion = image.closest('.art-motion'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p05.frameArtAlt, variant: motion.className, imageAnimation: getComputedStyle(image).animationName, sweepAnimation: getComputedStyle(motion, '::after').animationName, videoCount: document.querySelectorAll('video').length }; })()`);
   assert.equal(archiveArt.src.endsWith('/事件插图/直播.PNG'), true);
   assert.equal(archiveArt.alt, archiveArt.expectedAlt);
+  assert.equal(archiveArt.variant.includes('art-motion--archive'), true);
+  assert.equal(archiveArt.imageAnimation, 'none');
+  assert.equal(archiveArt.sweepAnimation, 'none');
   assert.equal(archiveArt.videoCount, 0);
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="B"]');
   await click('[data-action="CLOSE_MODAL"]');
@@ -316,6 +337,12 @@ try {
   assert.equal(await evaluate('state.frameAnalysisInspected'), true);
   assert.equal(await evaluate(`Boolean(document.getElementById('analysis-record'))`), true);
   assert.deepEqual(await evaluate(`[...document.querySelectorAll('.analysis-frame-image')].map(image => decodeURI(image.src).split('/').pop())`), ['直播.PNG', '被换脸.PNG']);
+  const analysisMotion = await evaluate(`[...document.querySelectorAll('.analysis-frame')].map(motion => ({ variant: motion.className, imageAnimation: getComputedStyle(motion.querySelector('.analysis-frame-image')).animationName, scanAnimation: getComputedStyle(motion, '::before').animationName, labelZ: getComputedStyle(motion.querySelector('span')).zIndex }))`);
+  assert.equal(analysisMotion[0].variant.includes('art-motion--archive'), true);
+  assert.equal(analysisMotion[0].imageAnimation, 'none');
+  assert.equal(analysisMotion[1].variant.includes('art-motion--glitch'), true);
+  assert.equal(analysisMotion[1].imageAnimation, 'art-pixel-jitter');
+  assert.equal(analysisMotion.every(item => item.scanAnimation === 'art-scan-drift' && Number(item.labelZ) > 2), true);
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="F"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="MARK_EVIDENCE"][data-evidence="F"][data-mark="ALTERED"]');
@@ -347,6 +374,7 @@ try {
     await delay(120);
     const outcomeArt = await evaluate(`(() => {
       const image = document.querySelector('[data-ending-art]');
+      const motion = image.closest('.art-motion');
       return {
         finalDecision: state.finalDecision,
         src: decodeURI(image.src),
@@ -358,7 +386,12 @@ try {
         videoCount: document.querySelectorAll('video').length,
         controlsCount: document.querySelectorAll('[controls]').length,
         inPageArt: Boolean(document.querySelector('#decision-feedback [data-ending-art]')),
-        feedbackGrid: Boolean(document.querySelector('#decision-feedback .feedback-layout'))
+        feedbackGrid: Boolean(document.querySelector('#decision-feedback .feedback-layout')),
+        variant: motion.className,
+        motionAnimation: getComputedStyle(motion).animationName,
+        imageAnimation: getComputedStyle(image).animationName,
+        scanAnimation: getComputedStyle(motion, '::before').animationName,
+        sweepAnimation: getComputedStyle(motion, '::after').animationName
       };
     })()`);
     assert.equal(outcomeArt.finalDecision, decision);
@@ -371,6 +404,11 @@ try {
     assert.equal(outcomeArt.controlsCount, 0);
     assert.equal(outcomeArt.inPageArt, false);
     assert.equal(outcomeArt.feedbackGrid, false);
+    assert.equal(outcomeArt.variant.includes('art-motion--outcome'), true);
+    assert.equal(outcomeArt.motionAnimation, 'art-outcome-reveal');
+    assert.equal(outcomeArt.imageAnimation, 'none');
+    assert.equal(outcomeArt.scanAnimation, 'art-scan-drift');
+    assert.equal(outcomeArt.sweepAnimation, 'art-signal-sweep');
     if (decision !== 'FLAG_MANIPULATED') await click('[data-action="RESELECT_DECISION"]');
   }
 
@@ -387,7 +425,11 @@ try {
   assert.equal(await evaluate(`document.activeElement.dataset.action`), 'OPEN_ENDING_ART');
 
   await click('[data-action="OPEN_ENDING_ART"]');
-  assert.equal(await evaluate(`endingArtOpen && decodeURI(document.querySelector('[data-ending-art]').src).endsWith('/事件插图/结局三.PNG')`), true);
+  const reopenedArt = await evaluate(`({ open: endingArtOpen, src: decodeURI(document.querySelector('[data-ending-art]').src), freshNode: window.__endingArtNode !== document.querySelector('[data-ending-art]'), revealAnimation: getComputedStyle(document.querySelector('.ending-art-stage')).animationName })`);
+  assert.equal(reopenedArt.open, true);
+  assert.equal(reopenedArt.src.endsWith('/事件插图/结局三.PNG'), true);
+  assert.equal(reopenedArt.freshNode, true);
+  assert.equal(reopenedArt.revealAnimation, 'art-outcome-reveal');
   await send('Page.reload', { ignoreCache: true });
   await delay(500);
   const restoredDecision = await evaluate(`({ scene: state.currentScene, finalDecision: state.finalDecision, windowOpen: endingArtOpen, layerHidden: endingArtLayer.hidden, hasArt: Boolean(document.querySelector('[data-ending-art]')), hasReopen: Boolean(document.querySelector('[data-action="OPEN_ENDING_ART"]')), videoCount: document.querySelectorAll('video').length })`);
@@ -421,9 +463,23 @@ try {
 
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
   await evaluate(`dispatch('NAVIGATE', { scene: 'P08' }); dispatch('OPEN_ENDING_ART')`);
-  const reducedWindow = await evaluate(`(() => { const animationDuration = parseFloat(getComputedStyle(document.querySelector('.ending-art-window')).animationDuration); closeEndingArt(); return { animationDuration, hiddenImmediately: endingArtLayer.hidden }; })()`);
+  const reducedWindow = await evaluate(`(() => { const windowElement = document.querySelector('.ending-art-window'); const motion = document.querySelector('.ending-art-stage'); const image = motion.querySelector('.ending-art-image'); const result = { animationDuration: parseFloat(getComputedStyle(windowElement).animationDuration), motionAnimation: getComputedStyle(motion).animationName, motionClip: getComputedStyle(motion).clipPath, imageAnimation: getComputedStyle(image).animationName, imageTransform: getComputedStyle(image).transform, scanAnimation: getComputedStyle(motion, '::before').animationName, sweepAnimation: getComputedStyle(motion, '::after').animationName, sweepOpacity: getComputedStyle(motion, '::after').opacity }; closeEndingArt(); return { ...result, hiddenImmediately: endingArtLayer.hidden }; })()`);
   assert.ok(reducedWindow.animationDuration <= 0.001, 'Reduced motion should suppress the outcome art window animation.');
   assert.equal(reducedWindow.hiddenImmediately, true, 'Reduced motion should close the outcome art window immediately.');
+  assert.equal(reducedWindow.motionAnimation, 'none');
+  assert.equal(reducedWindow.motionClip, 'none');
+  assert.equal(reducedWindow.imageAnimation, 'none');
+  assert.equal(reducedWindow.imageTransform, 'none');
+  assert.equal(reducedWindow.scanAnimation, 'none');
+  assert.equal(reducedWindow.sweepAnimation, 'none');
+  assert.equal(reducedWindow.sweepOpacity, '0');
+  await evaluate(`dispatch('NAVIGATE', { scene: 'P02' })`);
+  const reducedGlitch = await evaluate(`(() => { const motion = document.querySelector('.art-motion--glitch'); const image = motion.querySelector('.art-motion-image'); return { motionAnimation: getComputedStyle(motion).animationName, imageAnimation: getComputedStyle(image).animationName, imageTransform: getComputedStyle(image).transform, sweepAnimation: getComputedStyle(motion, '::after').animationName, sweepOpacity: getComputedStyle(motion, '::after').opacity }; })()`);
+  assert.equal(reducedGlitch.motionAnimation, 'none');
+  assert.equal(reducedGlitch.imageAnimation, 'none');
+  assert.equal(reducedGlitch.imageTransform, 'none');
+  assert.equal(reducedGlitch.sweepAnimation, 'none');
+  assert.equal(reducedGlitch.sweepOpacity, '0');
   await evaluate(`state.openingSeen = false; dispatch('NAVIGATE', { scene: 'P00' })`);
   assert.equal(await evaluate(`!document.getElementById('boot-action').hidden`), true, 'Reduced motion should reveal P00 immediately.');
   await send('Emulation.setEmulatedMedia', { features: [] });
@@ -491,6 +547,7 @@ try {
     migration: 'v1 and v2 state preserved as v3',
     evidenceBoard: 'six marks, valid/invalid connections, F analysis, and incomplete path verified',
     decisions: 'three static consequence illustrations and illustration-only outcome window verified',
+    motion: 'CSS illustration variants and reduced-motion fallback verified',
     screenshots: screenshots.map(filename => path.join(artifacts, filename))
   }, null, 2));
 } finally {

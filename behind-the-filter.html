@@ -419,6 +419,79 @@
       object-fit: contain;
     }
 
+    /* Shared low-frequency motion treatment for the event illustrations. */
+    .art-motion {
+      --art-sweep-duration: 10s;
+      position: relative;
+      display: block;
+      overflow: hidden;
+      isolation: isolate;
+      background: #03070d;
+    }
+    .art-motion > .art-motion-image { position: relative; z-index: 0; }
+    .art-motion::before,
+    .art-motion::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+    .art-motion::before {
+      inset: 0;
+      z-index: 1;
+      background: repeating-linear-gradient(0deg, transparent 0 5px, #dbeaff 5px 6px);
+      background-position: 0 0;
+      opacity: .05;
+      animation: art-scan-drift 10s linear infinite;
+    }
+    .art-motion::after {
+      top: -32%;
+      right: 0;
+      left: 0;
+      z-index: 2;
+      height: 28%;
+      background: linear-gradient(180deg, transparent, #9dc5ff1a 44%, #ffffff14 55%, transparent);
+      opacity: 0;
+      transform: translateY(0);
+      animation: art-signal-sweep var(--art-sweep-duration) ease-in-out infinite;
+    }
+    .art-motion--signal {
+      --art-sweep-duration: 9s;
+      animation: art-signal-breathe 9s steps(12, end) infinite;
+    }
+    .art-motion--glitch { --art-sweep-duration: 11s; }
+    .art-motion--glitch > .art-motion-image { animation: art-pixel-jitter 10s steps(1, end) infinite; }
+    .art-motion--archive { --art-sweep-duration: 12s; }
+    .art-motion--archive::before { opacity: .035; }
+    .art-motion--archive::after { opacity: 0; animation: none; }
+    .art-motion--outcome {
+      --art-sweep-duration: 10s;
+      animation: art-outcome-reveal 480ms steps(6, end) both;
+    }
+
+    @keyframes art-scan-drift {
+      to { background-position: 0 12px; }
+    }
+    @keyframes art-signal-sweep {
+      0%, 70% { opacity: 0; transform: translateY(0); }
+      73% { opacity: .85; }
+      87% { opacity: .85; transform: translateY(472%); }
+      90%, 100% { opacity: 0; transform: translateY(472%); }
+    }
+    @keyframes art-signal-breathe {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.035); }
+    }
+    @keyframes art-pixel-jitter {
+      0%, 87%, 91%, 100% { transform: translateX(0); }
+      88% { transform: translateX(1px); }
+      89% { transform: translateX(-1px); }
+      90% { transform: translateX(1px); }
+    }
+    @keyframes art-outcome-reveal {
+      from { opacity: .72; clip-path: inset(0 0 100% 0); }
+      to { opacity: 1; clip-path: inset(0); }
+    }
+
     .viral-still {
       position: relative;
       display: block;
@@ -426,19 +499,8 @@
       overflow: hidden;
       border: 1px solid #505964;
       background-color: #0b1017;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: contain;
     }
-
-    .viral-still::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, #05070a22, transparent 40%, #03050835);
-      pointer-events: none;
-    }
-
+    .viral-still-image { display: block; width: 100%; height: 100%; object-fit: contain; background: #030507; }
 
     /* P02 */
     .mail-layout {
@@ -689,7 +751,7 @@
     .archive-event-meta { color: #6b5c3e; font-family: Georgia, serif; font-style: italic; }
     .archive-content > p { line-height: 1.6; }
     .archive-event-art { margin: 16px 0 20px; border: 1px solid #8f969f; background: #0d2450; }
-    .archive-event-art img { display: block; width: 100%; aspect-ratio: 144 / 91; object-fit: contain; background: #08152e; }
+    .archive-event-art .art-motion-image { display: block; width: 100%; aspect-ratio: 144 / 91; object-fit: contain; background: #08152e; }
     .archive-event-art figcaption { padding: 8px 11px; color: #e9eef8; background: #17396e; font-family: var(--mono); font-size: 11px; }
     .speaker-list { margin: 20px 0; padding-block: 12px; border-block: 1px solid #b7bbc0; }
     .speaker-list h3 { margin: 0 0 8px; color: #163a72; font: 700 16px Georgia, serif; }
@@ -802,8 +864,7 @@
     .analysis-frame-image { display: block; width: 100%; height: 100%; object-fit: contain; background: #030507; }
     .analysis-frame.source-frame .analysis-frame-image { filter: saturate(.82) brightness(.92); }
     .analysis-frame.viral-frame .analysis-frame-image { filter: saturate(.58) contrast(1.12); }
-    .analysis-frame::before { content: ""; position: absolute; inset: 0; z-index: 1; background: repeating-linear-gradient(0deg, transparent 0 4px, #fff 5px 6px); opacity: .07; pointer-events: none; }
-    .analysis-frame span { position: absolute; left: 8px; bottom: 8px; z-index: 2; padding: 4px 6px; color: white; background: #020407d9; font-size: 10px; }
+    .analysis-frame span { position: absolute; left: 8px; bottom: 8px; z-index: 3; padding: 4px 6px; color: white; background: #020407d9; font-size: 10px; }
     .analysis-findings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
     .analysis-finding { padding: 10px; border-top: 2px solid var(--yellow); color: #c6ced8; background: #0d131c; line-height: 1.45; }
     .connection-ledger { margin-top: 16px; border: 1px solid #46515e; background: #060a0f; }
@@ -899,15 +960,6 @@
     }
     .ending-art-tool:hover { border-color: var(--blue); color: white; background: #10264c; }
     .ending-art-stage { position: relative; overflow: hidden; background: #000; }
-    .ending-art-stage::after {
-      content: "";
-      position: absolute;
-      inset: -35% 0 auto;
-      height: 35%;
-      background: linear-gradient(180deg, transparent, #9dc5ff14, transparent);
-      pointer-events: none;
-      animation: outcome-scan 900ms 100ms ease-out both;
-    }
     .ending-art-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #000; }
 
     @keyframes outcome-window-in {
@@ -918,11 +970,6 @@
       from { opacity: 1; transform: translateY(0) scale(1); }
       to { opacity: 0; transform: translateY(8px) scale(.98); }
     }
-    @keyframes outcome-scan {
-      from { transform: translateY(0); }
-      to { transform: translateY(390%); }
-    }
-
     /* P09 */
     .ending-screen { min-height: 100vh; display: grid; place-items: center; padding: 34px 20px; background: #000; }
     .ending-terminal { width: min(820px, 100%); padding: 38px; border: 1px solid #3b4654; background: #020406; box-shadow: 0 0 70px #0b2a2233; }
@@ -1099,6 +1146,21 @@
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
       }
+      .art-motion {
+        animation: none !important;
+        filter: none !important;
+        clip-path: none !important;
+      }
+      .art-motion > .art-motion-image {
+        animation: none !important;
+        transform: none !important;
+      }
+      .art-motion::before,
+      .art-motion::after {
+        animation: none !important;
+        transform: none !important;
+      }
+      .art-motion::after { opacity: 0 !important; }
     }
   </style>
 </head>
@@ -1734,7 +1796,7 @@
       }
 
       const existingArt = endingArtLayer.querySelector('[data-ending-art]');
-      if (!existingArt || existingArt.dataset.decision !== endingArtDecision) {
+      if (!existingArt || existingArt.dataset.decision !== endingArtDecision || endingArtLayer.hidden) {
         endingArtLayer.innerHTML = `
           <section class="ending-art-window" role="region" aria-labelledby="ending-art-title">
             <header class="ending-art-head">
@@ -1747,8 +1809,8 @@
               </div>
               <button id="ending-art-close" class="ending-art-tool" type="button" data-action="CLOSE_ENDING_ART">${icon('x')}</button>
             </header>
-            <div class="ending-art-stage">
-              <img class="ending-art-image" src="${escapeHTML(ENDING_ART[endingArtDecision])}" alt="" decoding="async" data-ending-art data-decision="${escapeHTML(endingArtDecision)}">
+            <div class="ending-art-stage art-motion art-motion--outcome">
+              <img class="ending-art-image art-motion-image" src="${escapeHTML(ENDING_ART[endingArtDecision])}" alt="" decoding="async" data-ending-art data-decision="${escapeHTML(endingArtDecision)}">
             </div>
           </section>`;
       }
@@ -2379,7 +2441,9 @@
             </div>
             <div class="retro-player">
               <div class="player-titlebar"><span>${escapeHTML(t.p01.file)}</span><span>${escapeHTML(t.p01.staticRecord)}</span></div>
-              <img class="case-preview-art" src="${escapeHTML(EVENT_ART.opening)}" alt="${escapeHTML(t.p01.artAlt)}" decoding="async">
+              <div class="art-motion art-motion--signal">
+                <img class="case-preview-art art-motion-image" src="${escapeHTML(EVENT_ART.opening)}" alt="${escapeHTML(t.p01.artAlt)}" decoding="async">
+              </div>
               <div class="player-metadata"><span>${escapeHTML(t.p01.reconstruction)}</span><span>CASE 001</span></div>
             </div>
           </section>
@@ -2439,7 +2503,9 @@
                         <button class="primary-button" type="button" data-action="OPEN_POST">${escapeHTML(t.p02.openPost)} ${icon('chevron')}</button>
                       </div>
                       <span class="attachment-art-label">${escapeHTML(t.p02.artLabel)}</span>
-                      <img class="attachment-art" src="${escapeHTML(EVENT_ART.manipulated)}" alt="${escapeHTML(t.p02.artAlt)}" loading="lazy" decoding="async">
+                      <div class="art-motion art-motion--glitch">
+                        <img class="attachment-art art-motion-image" src="${escapeHTML(EVENT_ART.manipulated)}" alt="${escapeHTML(t.p02.artAlt)}" loading="lazy" decoding="async">
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -2493,7 +2559,10 @@
                     <h2>${escapeHTML(t.p03.postTitle)}</h2>
                     <p class="post-copy">${escapeHTML(t.p03.postBody)}<br><span class="footer-small">${escapeHTML(t.p03.accountFacts)}</span></p>
                     <button class="feed-video" type="button" data-action="SHOW_VIDEO_NOTICE" aria-label="${escapeHTML(t.modal.videoTitle)}">
-                      <span class="viral-still" style="background-image:url('${escapeHTML(EVENT_ART.manipulated)}')"><span class="media-static-badge">${icon('eye')} ${escapeHTML(t.modal.videoTitle)}</span></span>
+                      <span class="viral-still art-motion art-motion--glitch">
+                        <img class="viral-still-image art-motion-image" src="${escapeHTML(EVENT_ART.manipulated)}" alt="" aria-hidden="true" loading="lazy" decoding="async">
+                        <span class="media-static-badge">${icon('eye')} ${escapeHTML(t.modal.videoTitle)}</span>
+                      </span>
                     </button>
                     <div class="post-stats"><span>${escapeHTML(t.p03.views)}</span><span>${escapeHTML(t.p03.shares)}</span><span>${escapeHTML(t.p03.commentsCount)}</span></div>
                     <div class="post-actions">
@@ -2602,7 +2671,9 @@
                   <p class="archive-event-meta">${escapeHTML(t.p05.eventMeta)}</p>
                   <p>${escapeHTML(t.p05.eventBody)}</p>
                   <figure class="archive-event-art">
-                    <img src="${escapeHTML(EVENT_ART.campusEvent)}" alt="${escapeHTML(t.p05.eventArtAlt)}" loading="lazy" decoding="async">
+                    <div class="art-motion art-motion--archive">
+                      <img class="art-motion-image" src="${escapeHTML(EVENT_ART.campusEvent)}" alt="${escapeHTML(t.p05.eventArtAlt)}" loading="lazy" decoding="async">
+                    </div>
                     <figcaption>${escapeHTML(t.p05.eventArtCaption)}</figcaption>
                   </figure>
                   <section class="speaker-list">
@@ -2625,7 +2696,9 @@
                       <div class="archive-frame-record">
                         <div class="archive-frame-label">${escapeHTML(t.p05.frameTitle)} // 00:23:17</div>
                         
-                        <img class="archive-frame-art" src="${escapeHTML(EVENT_ART.livestream)}" alt="${escapeHTML(t.p05.frameArtAlt)}" loading="lazy" decoding="async">
+                        <div class="art-motion art-motion--archive">
+                          <img class="archive-frame-art art-motion-image" src="${escapeHTML(EVENT_ART.livestream)}" alt="${escapeHTML(t.p05.frameArtAlt)}" loading="lazy" decoding="async">
+                        </div>
                         
                         <p>${escapeHTML(t.p05.frameBody)}</p>
                         <h3>${escapeHTML(t.p05.transcriptTitle)}</h3>
@@ -2751,8 +2824,8 @@
           <h2 id="analysis-title">${escapeHTML(t.p07.analysisTitle)}</h2>
           <p>${escapeHTML(t.p07.analysisIntro)}</p>
           <div class="analysis-frames" aria-label="${escapeHTML(t.p07.analysisTitle)}">
-            <div class="analysis-frame source-frame"><img class="analysis-frame-image" src="${escapeHTML(EVENT_ART.livestream)}" alt="${escapeHTML(t.p07.sourceFrameAlt)}" loading="lazy" decoding="async"><span>${escapeHTML(t.p07.sourceFrame)}</span></div>
-            <div class="analysis-frame viral-frame"><img class="analysis-frame-image" src="${escapeHTML(EVENT_ART.manipulated)}" alt="${escapeHTML(t.p07.viralFrameAlt)}" loading="lazy" decoding="async"><span>${escapeHTML(t.p07.viralFrame)}</span></div>
+            <div class="analysis-frame source-frame art-motion art-motion--archive"><img class="analysis-frame-image art-motion-image" src="${escapeHTML(EVENT_ART.livestream)}" alt="${escapeHTML(t.p07.sourceFrameAlt)}" loading="lazy" decoding="async"><span>${escapeHTML(t.p07.sourceFrame)}</span></div>
+            <div class="analysis-frame viral-frame art-motion art-motion--glitch"><img class="analysis-frame-image art-motion-image" src="${escapeHTML(EVENT_ART.manipulated)}" alt="${escapeHTML(t.p07.viralFrameAlt)}" loading="lazy" decoding="async"><span>${escapeHTML(t.p07.viralFrame)}</span></div>
           </div>
           <div class="analysis-findings">${t.p07.findings.map(item => `<div class="analysis-finding">${escapeHTML(item)}</div>`).join('')}</div>
           <p class="evidence-warning">${escapeHTML(t.p07.supportWarning)}</p>
