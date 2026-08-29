@@ -5,7 +5,15 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const browserCandidates = [
+  process.env.CHROME_PATH,
+  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'
+].filter(Boolean);
+const chromePath = browserCandidates.find(candidate => fs.existsSync(candidate));
+assert.ok(chromePath, 'Smoke test requires Chrome or Edge. Set CHROME_PATH to a Chromium browser executable.');
 const appPath = path.resolve('behind-the-filter.html');
 const appUrl = pathToFileURL(appPath).href;
 const port = 9334;
@@ -15,11 +23,16 @@ const htmlSource = fs.readFileSync(appPath, 'utf8');
 fs.mkdirSync(artifacts, { recursive: true });
 
 assert.equal(htmlSource.includes('AudioContext'), false, 'The build should not depend on Web Audio.');
-assert.ok((htmlSource.match(/<video\b/gi) || []).length >= 2, 'Archive and ending video players should be present.');
-const mediaReferences = [...htmlSource.matchAll(/(?:\.\/)?materials\/(?:sound|videos)\/[^"'()<>\s]+/gi)].map(match => decodeURIComponent(match[0].replace(/^\.\//, '')));
-assert.ok(mediaReferences.length >= 10, 'Expected local sound, BGM, opening, archive, and ending media references.');
+assert.equal((htmlSource.match(/<video\b/gi) || []).length, 0, 'The playable build must not contain video elements.');
+assert.equal(/<[^>]+\scontrols(?:\s|=|>)/i.test(htmlSource), false, 'The playable build must not contain media controls.');
+assert.equal(htmlSource.includes('materials/videos/'), false, 'The playable build must not reference legacy video assets.');
+const mediaReferences = [...htmlSource.matchAll(/(?:\.\/)?materials\/(?:sound|images\/事件插图)\/[^"'()<>\s]+/gi)].map(match => decodeURIComponent(match[0].replace(/^\.\//, '')));
+assert.ok(mediaReferences.length >= 10, 'Expected local sound and event illustration references.');
 for (const reference of new Set(mediaReferences)) {
   assert.equal(fs.existsSync(path.resolve(reference)), true, `Missing local media asset: ${reference}`);
+}
+for (const filename of ['college life.mp4', 'creepshot.mp4', 'ed1.mp4', 'ed2.mp4', 'ed3.mp4', 'original-video.mp4', 'sw1.mp4']) {
+  assert.equal(fs.existsSync(path.resolve('materials/videos', filename)), true, `Legacy video file should remain untouched: ${filename}`);
 }
 
 const browser = spawn(chromePath, [
@@ -112,13 +125,13 @@ async function activateByKeyboard() {
   await delay(100);
 }
 
-async function snapshot(scene, width, height, { endingWindow = false, focusSelector = null, label = null } = {}) {
+async function snapshot(scene, width, height, { endingArtWindow = false, focusSelector = null, label = null } = {}) {
   await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: width < 600 });
   await evaluate(`dispatch('NAVIGATE', { scene: ${JSON.stringify(scene)} })`);
-  if (endingWindow) await evaluate(`dispatch('OPEN_ENDING_VIDEO')`);
+  if (endingArtWindow) await evaluate(`dispatch('OPEN_ENDING_ART')`);
   if (focusSelector) await evaluate(`document.querySelector(${JSON.stringify(focusSelector)})?.scrollIntoView({ block: 'center', behavior: 'auto' })`);
   await evaluate(`liveStatus.classList.remove('is-visible')`);
-  await delay(endingWindow ? 280 : 180);
+  await delay(endingArtWindow ? 280 : 180);
   const layout = await evaluate(`({
     scene: state.currentScene,
     viewport: document.documentElement.clientWidth,
@@ -130,9 +143,9 @@ async function snapshot(scene, width, height, { endingWindow = false, focusSelec
   assert.ok(layout.scrollWidth <= layout.viewport, `${scene} has horizontal overflow at ${width}px: ${JSON.stringify(layout.overflowingElements)}`);
   assert.deepEqual(layout.overflowingButtons, [], `${scene} has overflowing button labels at ${width}px`);
   const image = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-  const filename = `${scene}${endingWindow ? '-video-window' : label ? `-${label}` : ''}-${width}x${height}.png`;
+  const filename = `${scene}${endingArtWindow ? '-art-window' : label ? `-${label}` : ''}-${width}x${height}.png`;
   fs.writeFileSync(path.join(artifacts, filename), Buffer.from(image.data, 'base64'));
-  if (endingWindow) await evaluate(`closeEndingVideo({ restoreFocus: false, animate: false })`);
+  if (endingArtWindow) await evaluate(`closeEndingArt({ restoreFocus: false, animate: false })`);
   return filename;
 }
 
@@ -219,32 +232,20 @@ try {
   assert.equal(await evaluate(`state.bgmEnabled && !backgroundMusic.glitch.paused`), true);
 
   await click('[data-action="ENTER_SYSTEM"]');
-  const p01Video = await evaluate(`(() => { const video = document.querySelector('.case-preview-video'); return { src: video.querySelector('source').getAttribute('src'), autoplay: video.autoplay, muted: video.muted, loop: video.loop, controls: video.controls, playsInline: video.playsInline }; })()`);
-  assert.equal(p01Video.src, 'materials/videos/sw1.mp4');
-  assert.equal(p01Video.autoplay, true);
-  assert.equal(p01Video.muted, true);
-  assert.equal(p01Video.loop, true);
-  assert.equal(p01Video.controls, true);
-  assert.equal(p01Video.playsInline, true);
+  const p01Art = await evaluate(`(() => { const image = document.querySelector('.case-preview-art'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p01.artAlt, videoCount: document.querySelectorAll('video').length, controlsCount: document.querySelectorAll('[controls]').length, progressPresent: Boolean(document.querySelector('.player-progress')) }; })()`);
+  assert.equal(p01Art.src.endsWith('/事件插图/开头.PNG'), true);
+  assert.equal(p01Art.alt, p01Art.expectedAlt);
+  assert.equal(p01Art.videoCount, 0);
+  assert.equal(p01Art.controlsCount, 0);
+  assert.equal(p01Art.progressPresent, false);
   await click('[data-action="START_CASE"]');
   assert.equal(await evaluate('state.currentScene'), 'P02');
-  const p02Video = await evaluate(`(() => { const video = document.querySelector('.attachment-video'); return { src: video.querySelector('source').getAttribute('src'), autoplay: video.autoplay, loop: video.loop, controls: video.controls, playsInline: video.playsInline, paused: video.paused }; })()`);
-  assert.equal(p02Video.src, 'materials/videos/sw1.mp4');
-  assert.equal(p02Video.autoplay, false);
-  assert.equal(p02Video.loop, false);
-  assert.equal(p02Video.controls, true);
-  assert.equal(p02Video.playsInline, true);
-  assert.equal(p02Video.paused, true);
-  await evaluate(`document.querySelector('.attachment-video').play()`);
-  await delay(550);
-  const foregroundSuppression = await evaluate(`({ foreground: activeForegroundMedia.size, bgmPaused: backgroundMusic.glitch.paused, bgmVolume: backgroundMusic.glitch.volume, heartbeatPaused: mailHeartbeatSound.paused })`);
-  assert.equal(foregroundSuppression.foreground, 1);
-  assert.equal(foregroundSuppression.bgmPaused, true);
-  assert.equal(foregroundSuppression.bgmVolume, 0);
-  assert.equal(foregroundSuppression.heartbeatPaused, true);
-  await evaluate(`document.querySelector('.attachment-video').pause()`);
-  await delay(450);
-  assert.equal(await evaluate(`activeForegroundMedia.size === 0 && !backgroundMusic.glitch.paused && Math.abs(backgroundMusic.glitch.volume - 0.07) < 0.002`), true);
+  const p02Art = await evaluate(`(() => { const image = document.querySelector('.attachment-art'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p02.artAlt, videoCount: document.querySelectorAll('video').length, bgmPaused: backgroundMusic.glitch.paused, bgmVolume: backgroundMusic.glitch.volume }; })()`);
+  assert.equal(p02Art.src.endsWith('/事件插图/被换脸.PNG'), true);
+  assert.equal(p02Art.alt, p02Art.expectedAlt);
+  assert.equal(p02Art.videoCount, 0);
+  assert.equal(p02Art.bgmPaused, false);
+  assert.ok(Math.abs(p02Art.bgmVolume - 0.07) < 0.002);
   await evaluate(`HTMLMediaElement.prototype.play = window.__originalBgmPlay`);
 
   await click('[data-action="OPEN_REPLY"]');
@@ -259,6 +260,7 @@ try {
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="E"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="OPEN_POST"]');
+  assert.equal(await evaluate(`decodeURI(getComputedStyle(document.querySelector('.viral-still')).backgroundImage).includes('/事件插图/被换脸.PNG')`), true);
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="A"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="UNLOCK_SEARCH"]');
@@ -276,8 +278,12 @@ try {
   }
   await click('[data-action="SELECT_SEARCH_QUERY"][data-query="festival"]');
   await click('[data-action="OPEN_SEARCH_RESULT"][data-query="festival"]');
+  assert.equal(await evaluate(`decodeURI(document.querySelector('.archive-event-art img').src).endsWith('/事件插图/毕业.PNG')`), true);
   await click('[data-action="INSPECT_ARCHIVE"]');
-  assert.equal(await evaluate(`document.querySelector('.archive-frame-video source').getAttribute('src')`), 'materials/videos/original-video.mp4');
+  const archiveArt = await evaluate(`(() => { const image = document.querySelector('.archive-frame-art'); return { src: decodeURI(image.src), alt: image.alt, expectedAlt: COPY.en.p05.frameArtAlt, videoCount: document.querySelectorAll('video').length }; })()`);
+  assert.equal(archiveArt.src.endsWith('/事件插图/直播.PNG'), true);
+  assert.equal(archiveArt.alt, archiveArt.expectedAlt);
+  assert.equal(archiveArt.videoCount, 0);
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="B"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="OPEN_SOURCE_TRACE"]');
@@ -309,6 +315,7 @@ try {
   await click('[data-action="INSPECT_FRAME_ANALYSIS"]');
   assert.equal(await evaluate('state.frameAnalysisInspected'), true);
   assert.equal(await evaluate(`Boolean(document.getElementById('analysis-record'))`), true);
+  assert.deepEqual(await evaluate(`[...document.querySelectorAll('.analysis-frame-image')].map(image => decodeURI(image.src).split('/').pop())`), ['直播.PNG', '被换脸.PNG']);
   await click('[data-action="SAVE_EVIDENCE"][data-evidence="F"]');
   await click('[data-action="CLOSE_MODAL"]');
   await click('[data-action="MARK_EVIDENCE"][data-evidence="F"][data-mark="ALTERED"]');
@@ -329,107 +336,68 @@ try {
   await delay(400);
   assert.equal(await evaluate(`activeBgmKey === 'hardcore' && !backgroundMusic.hardcore.paused && Math.abs(backgroundMusic.hardcore.volume - 0.045) < 0.002`), true);
 
-  await evaluate(`(() => {
-    window.__endingPlayMode = 'resolve';
-    window.__endingPlayCalls = [];
-    window.__originalMediaPlay = HTMLMediaElement.prototype.play;
-    HTMLMediaElement.prototype.play = function() {
-      if (!this.matches?.('[data-ending-video]')) return window.__originalMediaPlay.call(this);
-      window.__endingPlayCalls.push({ muted: this.muted, volume: this.volume });
-      if (window.__endingPlayMode === 'reject-all' || (window.__endingPlayMode === 'reject-audible' && !this.muted)) {
-        return Promise.reject(new DOMException('Autoplay blocked', 'NotAllowedError'));
-      }
-      return Promise.resolve();
-    };
-  })()`);
-
   const branchCases = [
-    ['PUBLISH', 'ed1.mp4', 'reject-audible'],
-    ['VERIFY_FURTHER', 'ed2.mp4', 'reject-all'],
-    ['FLAG_MANIPULATED', 'ed3.mp4', 'resolve']
+    ['PUBLISH', '结局一.PNG'],
+    ['VERIFY_FURTHER', '结局二.PNG'],
+    ['FLAG_MANIPULATED', '结局三.PNG']
   ];
-  for (const [decision, media, playMode] of branchCases) {
-    await evaluate(`window.__endingPlayMode = ${JSON.stringify(playMode)}; window.__endingPlayCalls = []`);
+  for (const [decision, illustration] of branchCases) {
     await click(`[data-action="SELECT_DECISION"][data-decision="${decision}"]`);
     await click('[data-action="SUBMIT_DECISION"]');
     await delay(120);
-    const branch = await evaluate(`(() => {
-      const video = document.querySelector('[data-ending-video]');
+    const outcomeArt = await evaluate(`(() => {
+      const image = document.querySelector('[data-ending-art]');
       return {
         finalDecision: state.finalDecision,
-        src: video.querySelector('source').getAttribute('src'),
-        controls: video.controls,
-        volume: video.volume,
-        muted: video.muted,
-        open: endingVideoOpen && !endingMediaLayer.hidden,
-        status: endingVideoStatus,
-        calls: window.__endingPlayCalls,
+        src: decodeURI(image.src),
+        alt: image.alt,
+        expectedChoiceTitle: COPY.en.p08.choices.find(choice => choice.id === ${JSON.stringify(decision)}).title,
+        decision: image.dataset.decision,
+        open: endingArtOpen && !endingArtLayer.hidden,
         focus: document.activeElement.id,
-        inPageVideo: Boolean(document.querySelector('#decision-feedback [data-ending-video]')),
+        videoCount: document.querySelectorAll('video').length,
+        controlsCount: document.querySelectorAll('[controls]').length,
+        inPageArt: Boolean(document.querySelector('#decision-feedback [data-ending-art]')),
         feedbackGrid: Boolean(document.querySelector('#decision-feedback .feedback-layout'))
       };
     })()`);
-    assert.equal(branch.finalDecision, decision);
-    assert.equal(branch.src.endsWith(media), true);
-    assert.equal(branch.controls, true);
-    assert.equal(branch.volume, 0.25);
-    assert.equal(branch.open, true);
-    assert.equal(branch.focus, 'ending-media-close');
-    assert.equal(branch.inPageVideo, false);
-    assert.equal(branch.feedbackGrid, false);
-    if (playMode === 'reject-audible') {
-      assert.deepEqual(branch.calls.map(call => call.muted), [false, true]);
-      assert.equal(branch.muted, true);
-      assert.equal(branch.status, 'muted');
-    } else if (playMode === 'reject-all') {
-      assert.deepEqual(branch.calls.map(call => call.muted), [false, true]);
-      assert.equal(branch.status, 'manual');
-      assert.equal(await evaluate(`!document.querySelector('[data-action="RETRY_ENDING_VIDEO"]').hidden`), true);
-      await evaluate(`window.__endingPlayMode = 'resolve'`);
-      await click('[data-action="RETRY_ENDING_VIDEO"]');
-      assert.equal(await evaluate(`endingVideoStatus`), 'playing');
-      assert.equal(await evaluate(`document.querySelector('[data-action="RETRY_ENDING_VIDEO"]').hidden`), true);
-    } else {
-      assert.deepEqual(branch.calls.map(call => call.muted), [false]);
-      assert.equal(branch.muted, false);
-      assert.equal(branch.status, 'playing');
-    }
+    assert.equal(outcomeArt.finalDecision, decision);
+    assert.equal(outcomeArt.src.endsWith(`/事件插图/${illustration}`), true);
+    assert.equal(outcomeArt.alt.includes(outcomeArt.expectedChoiceTitle), true);
+    assert.equal(outcomeArt.decision, decision);
+    assert.equal(outcomeArt.open, true);
+    assert.equal(outcomeArt.focus, 'ending-art-close');
+    assert.equal(outcomeArt.videoCount, 0);
+    assert.equal(outcomeArt.controlsCount, 0);
+    assert.equal(outcomeArt.inPageArt, false);
+    assert.equal(outcomeArt.feedbackGrid, false);
     if (decision !== 'FLAG_MANIPULATED') await click('[data-action="RESELECT_DECISION"]');
   }
 
-  const callsBeforeLanguageSwitch = await evaluate(`window.__endingPlayCalls.length`);
-  await evaluate(`window.__endingVideoNode = document.querySelector('[data-ending-video]'); dispatch('TOGGLE_LANGUAGE')`);
-  const translatedWindow = await evaluate(`({ sameVideo: window.__endingVideoNode === document.querySelector('[data-ending-video]'), calls: window.__endingPlayCalls.length, title: document.getElementById('ending-media-title').textContent, expectedTitle: COPY.zh.p08.videoTitle })`);
-  assert.equal(translatedWindow.sameVideo, true);
-  assert.equal(translatedWindow.calls, callsBeforeLanguageSwitch);
+  await evaluate(`window.__endingArtNode = document.querySelector('[data-ending-art]'); dispatch('TOGGLE_LANGUAGE')`);
+  const translatedWindow = await evaluate(`({ sameArt: window.__endingArtNode === document.querySelector('[data-ending-art]'), title: document.getElementById('ending-art-title').textContent, expectedTitle: COPY.zh.p08.endingArtTitle, alt: document.querySelector('[data-ending-art]').alt, expectedAltPrefix: COPY.zh.p08.endingArtAlt })`);
+  assert.equal(translatedWindow.sameArt, true);
   assert.equal(translatedWindow.title, translatedWindow.expectedTitle);
+  assert.equal(translatedWindow.alt.includes(translatedWindow.expectedAltPrefix), true);
   await evaluate(`dispatch('TOGGLE_LANGUAGE')`);
 
-  await evaluate(`document.querySelector('[data-ending-video]').dispatchEvent(new Event('ended'))`);
-  assert.equal(await evaluate(`endingVideoOpen && endingVideoStatus === 'ended'`), true, 'The playback window should remain open on the final frame.');
-  await click('[data-action="TOGGLE_ENDING_MUTE"]');
-  assert.equal(await evaluate(`document.querySelector('[data-ending-video]').muted`), true);
-  await click('[data-action="TOGGLE_ENDING_MUTE"]');
-  assert.equal(await evaluate(`document.querySelector('[data-ending-video]').muted`), false);
   await evaluate(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
   await delay(220);
-  assert.equal(await evaluate(`endingMediaLayer.hidden && !endingVideoOpen`), true);
-  assert.equal(await evaluate(`document.activeElement.dataset.action`), 'OPEN_ENDING_VIDEO');
+  assert.equal(await evaluate(`endingArtLayer.hidden && !endingArtOpen`), true);
+  assert.equal(await evaluate(`document.activeElement.dataset.action`), 'OPEN_ENDING_ART');
 
-  await evaluate(`window.__endingPlayMode = 'resolve'`);
-  await click('[data-action="OPEN_ENDING_VIDEO"]');
-  await evaluate(`document.querySelector('[data-ending-video]').dispatchEvent(new Event('error'))`);
-  assert.equal(await evaluate(`document.getElementById('ending-video-note').textContent === COPY.en.p08.mediaUnavailable`), true);
-  assert.equal(await evaluate(`!document.querySelector('[data-action="RETRY_ENDING_VIDEO"]').hidden`), true);
+  await click('[data-action="OPEN_ENDING_ART"]');
+  assert.equal(await evaluate(`endingArtOpen && decodeURI(document.querySelector('[data-ending-art]').src).endsWith('/事件插图/结局三.PNG')`), true);
   await send('Page.reload', { ignoreCache: true });
   await delay(500);
-  const restoredDecision = await evaluate(`({ scene: state.currentScene, finalDecision: state.finalDecision, windowOpen: endingVideoOpen, layerHidden: endingMediaLayer.hidden, hasVideo: Boolean(document.querySelector('[data-ending-video]')), hasReplay: Boolean(document.querySelector('[data-action="OPEN_ENDING_VIDEO"]')) })`);
+  const restoredDecision = await evaluate(`({ scene: state.currentScene, finalDecision: state.finalDecision, windowOpen: endingArtOpen, layerHidden: endingArtLayer.hidden, hasArt: Boolean(document.querySelector('[data-ending-art]')), hasReopen: Boolean(document.querySelector('[data-action="OPEN_ENDING_ART"]')), videoCount: document.querySelectorAll('video').length })`);
   assert.equal(restoredDecision.scene, 'P08');
   assert.equal(restoredDecision.finalDecision, 'FLAG_MANIPULATED');
   assert.equal(restoredDecision.windowOpen, false);
   assert.equal(restoredDecision.layerHidden, true);
-  assert.equal(restoredDecision.hasVideo, false);
-  assert.equal(restoredDecision.hasReplay, true);
+  assert.equal(restoredDecision.hasArt, false);
+  assert.equal(restoredDecision.hasReopen, true);
+  assert.equal(restoredDecision.videoCount, 0);
 
   await activatePage();
   await click('[data-action="CLOSE_CASE"]');
@@ -452,10 +420,10 @@ try {
   assert.equal(await evaluate(`document.querySelector('[data-action="REVIEW_CASE"]').textContent.includes(COPY.en.p01.review)`), true);
 
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
-  await evaluate(`dispatch('NAVIGATE', { scene: 'P08' }); dispatch('OPEN_ENDING_VIDEO')`);
-  const reducedWindow = await evaluate(`(() => { const animationDuration = parseFloat(getComputedStyle(document.querySelector('.ending-media-window')).animationDuration); closeEndingVideo(); return { animationDuration, hiddenImmediately: endingMediaLayer.hidden }; })()`);
-  assert.ok(reducedWindow.animationDuration <= 0.001, 'Reduced motion should suppress the playback window animation.');
-  assert.equal(reducedWindow.hiddenImmediately, true, 'Reduced motion should close the playback window immediately.');
+  await evaluate(`dispatch('NAVIGATE', { scene: 'P08' }); dispatch('OPEN_ENDING_ART')`);
+  const reducedWindow = await evaluate(`(() => { const animationDuration = parseFloat(getComputedStyle(document.querySelector('.ending-art-window')).animationDuration); closeEndingArt(); return { animationDuration, hiddenImmediately: endingArtLayer.hidden }; })()`);
+  assert.ok(reducedWindow.animationDuration <= 0.001, 'Reduced motion should suppress the outcome art window animation.');
+  assert.equal(reducedWindow.hiddenImmediately, true, 'Reduced motion should close the outcome art window immediately.');
   await evaluate(`state.openingSeen = false; dispatch('NAVIGATE', { scene: 'P00' })`);
   assert.equal(await evaluate(`!document.getElementById('boot-action').hidden`), true, 'Reduced motion should reveal P00 immediately.');
   await send('Emulation.setEmulatedMedia', { features: [] });
@@ -480,7 +448,9 @@ try {
   for (const [width, height] of [[1440, 900], [1024, 768], [390, 844]]) {
     for (const scene of ['P00', 'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09']) screenshots.push(await snapshot(scene, width, height));
     screenshots.push(await snapshot('P02', width, height, { focusSelector: '.attachment', label: 'attachment' }));
-    screenshots.push(await snapshot('P08', width, height, { endingWindow: true }));
+    screenshots.push(await snapshot('P05', width, height, { focusSelector: '.archive-frame-art', label: 'archive-art' }));
+    screenshots.push(await snapshot('P07', width, height, { focusSelector: '#analysis-record', label: 'analysis' }));
+    screenshots.push(await snapshot('P08', width, height, { endingArtWindow: true }));
   }
 
   const incompleteState = {
@@ -520,7 +490,7 @@ try {
     flow: 'P00 -> P01 -> P02 -> P03 -> P04 -> P05 -> P06 -> P07 -> P08 -> P09 -> P01',
     migration: 'v1 and v2 state preserved as v3',
     evidenceBoard: 'six marks, valid/invalid connections, F analysis, and incomplete path verified',
-    decisions: 'three branches and ed1/ed2/ed3 media mapping verified',
+    decisions: 'three static consequence illustrations and illustration-only outcome window verified',
     screenshots: screenshots.map(filename => path.join(artifacts, filename))
   }, null, 2));
 } finally {
