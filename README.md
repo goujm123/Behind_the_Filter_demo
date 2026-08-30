@@ -8,7 +8,9 @@ Open [`behind-the-filter.html`](./behind-the-filter.html) directly in a browser.
 
 Current milestone: Case 001 scenes P00-P09 are playable from opening through evidence analysis, final recommendation, branch consequence, and case closure.
 
-The playable build uses interface sound effects and the event illustrations in `materials/images/事件插图/`. P01, P02, P03, P05, P07, and all three P08 outcomes pair each original PNG with a same-size `-frame-b.PNG` variant. The variants make a small number of blue/white pixel cells trade places, and CSS switches between the two frames with hard steps rather than a fade. No network requests are required, and `prefers-reduced-motion` restores a fully static presentation.
+The playable build uses interface sound effects and the event illustrations in `materials/images/事件插图/`. P01, P02, P03, P05, P07, and all three P08 outcomes combine each original PNG with same-size `-frame-b.PNG` and `-frame-c.PNG` variants. The three frames loop A-B-C-B-A with hard steps, using connected pixel regions for character breathing, posture changes, plants, curtains, and interface updates. No network requests are required, and `prefers-reduced-motion` restores a fully static presentation.
+
+Run `tools/generate-natural-motion-frames.ps1` to regenerate all Frame B and Frame C assets from the original blue/white PNGs. The script uses the original 288-by-182 art grid and does not require third-party packages.
 
 The playable HTML contains no video elements or playback controls. The legacy files in `materials/videos/` remain in the repository for archival purposes but are not referenced by the playable build.
 
